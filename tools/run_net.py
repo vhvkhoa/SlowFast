@@ -14,6 +14,8 @@ from slowfast.config.defaults import get_cfg
 from test_net import test
 from train_net import train
 
+from feature_extraction import feature_extract
+
 
 def parse_args():
     """
@@ -58,6 +60,23 @@ def parse_args():
         default="configs/Kinetics/SLOWFAST_4x16_R50.yaml",
         type=str,
     )
+    parser.add_argument(
+        "--feature_extraction",
+        action="store_true",
+        help="if turned on, only perform feature extraction."
+    )
+    parser.add_argument(
+        "--video_dir", "-v",
+        dest="video_dir",
+        default="",
+        help="Directory containing videos input to be extracted.",
+        type=str)
+    parser.add_argument(
+        "--feat_dir", "-f",
+        dest="feat_dir",
+        default="",
+        help="Directory containing features extracted to be saved.",
+        type=str)
     parser.add_argument(
         "opts",
         help="See slowfast/config/defaults.py for all options",
@@ -105,6 +124,9 @@ def main():
     """
     args = parse_args()
     cfg = load_config(args)
+
+    if args.feature_extraction:
+        feature_extract(cfg=cfg, path_to_video_dir=args.video_dir, path_to_feat_dir=args.feat_dir)
 
     # Perform training.
     if cfg.TRAIN.ENABLE:
