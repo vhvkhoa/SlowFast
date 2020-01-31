@@ -59,11 +59,11 @@ def perform_feature_extract(test_loader, model, cfg):
             features = du.all_gather([features])
 
         all_features.append(features)
-    
+
     return torch.cat(all_features, dim=0)
 
 
-def faeture_extract(cfg, path_to_video_dir, path_to_feat_dir):
+def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
     """
     Perform multi-view testing on the pretrained video model.
     Args:
