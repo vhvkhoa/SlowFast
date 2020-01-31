@@ -77,7 +77,7 @@ def construct_loader(cfg, split):
         drop_last = False
     else:
         assert os.path.exists(split), 'Split should be in [train, val, test] or path to a video to do feature extraction.'
-        dataset_name = "VideoDataset"
+        dataset_name = "Video"
         batch_size = int(cfg.TEST.BATCH_SIZE / cfg.NUM_GPUS)
         shuffle = False
         drop_last = False
