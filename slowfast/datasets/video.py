@@ -86,9 +86,7 @@ class Video(torch.utils.data.Dataset):
         # T H W C -> C T H W.
         self.frames = self.frames.permute(3, 0, 1, 2)
 
-        print(len(self.frames))
         self.frames = utils.pack_pathway_output(self.cfg, self.frames)
-        print([len(f) for f in self.frames])
 
     def __getitem__(self, index):
         """
@@ -105,7 +103,7 @@ class Video(torch.utils.data.Dataset):
                 decoded, then return the index of the video. If not, return the
                 index of the video replacement that can be decoded.
         """
-        self.frames[index]
+        return [path_way[index] for path_way in self.frames]
 
     def __len__(self):
         """
