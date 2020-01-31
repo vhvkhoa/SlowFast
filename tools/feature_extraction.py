@@ -112,7 +112,7 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         logger.info("Extracting features with random initialization. Only for debugging.")
 
     # Create video feature extraction loaders.
-    for path_to_video in glob.iglob(path_to_video_dir):
+    for path_to_video in glob.iglob(osp.join(path_to_video_dir, '*')):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
         logger.info("Testing model for {} iterations".format(len(video_extraction_loader)))
 
