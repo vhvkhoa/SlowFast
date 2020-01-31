@@ -19,7 +19,7 @@ logger = logging.get_logger(__name__)
 
 
 @DATASET_REGISTRY.register()
-class VideoDataset(torch.utils.data.Dataset):
+class Video(torch.utils.data.Dataset):
     """
     Videos Dataset loader. Construct videos loader for features extraction.
     Given a list of videos being extracted
