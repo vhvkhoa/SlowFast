@@ -86,7 +86,9 @@ class Video(torch.utils.data.Dataset):
         # T H W C -> C T H W.
         self.frames = self.frames.permute(3, 0, 1, 2)
 
+        print(len(self.frames))
         self.frames = utils.pack_pathway_output(self.cfg, self.frames)
+        print([len(f) for f in self.frames])
 
     def __getitem__(self, index):
         """
