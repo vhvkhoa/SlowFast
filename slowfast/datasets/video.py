@@ -60,7 +60,7 @@ class Video(torch.utils.data.Dataset):
         )
         self._video_meta = {}
 
-        video_container = av.open(self._path_to_video)
+        video_container = av.open(path_to_video)
 
         # Decode video. Meta info is used to perform selective decoding.
         video_stream = video_container.streams.video[0]
