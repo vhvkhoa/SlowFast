@@ -73,6 +73,7 @@ class Video(torch.utils.data.Dataset):
         for frame in video_container.decode(video_stream):
             self.frames.append(frame.to_rgb().to_ndarray())
         self.frames = torch.as_tensor(np.stack(self.frames))
+        print(self.frames.size())
 
         index = torch.linspace(0, len(self.frames), num_samples)
         index = torch.clamp(index, 0, self.frames.shape[0] - 1).long()
