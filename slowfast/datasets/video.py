@@ -86,7 +86,11 @@ class Video(torch.utils.data.Dataset):
         # T H W C -> C T H W.
         self.frames = self.frames.permute(3, 0, 1, 2)
 
+        shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
+        self.frames, _ = transform.random_short_side_scale_jitter(self.frames, shorter_side_size, shorter_side_size)
+        # Two pathways. First: [C T/4 H W]. Second: [C T H W]
         self.frames = utils.pack_pathway_output(self.cfg, self.frames)
+        print([f.size() for f in self.frames])
 
     def __getitem__(self, index):
         """
@@ -110,4 +114,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return len(self.frames)
+        return max(len(path_way) for path_way in self.frames)
