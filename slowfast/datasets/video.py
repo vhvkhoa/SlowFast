@@ -73,12 +73,10 @@ class Video(torch.utils.data.Dataset):
         for frame in video_container.decode(video_stream):
             self.frames.append(frame.to_rgb().to_ndarray())
         self.frames = torch.as_tensor(np.stack(self.frames))
-        print(self.frames.size())
 
         index = torch.linspace(0, len(self.frames), num_samples)
         index = torch.clamp(index, 0, self.frames.shape[0] - 1).long()
         self.frames = torch.index_select(self.frames, 0, index)
-        print(self.frames.size())
 
         # Perform color normalization.
         self.frames = self.frames.float()
@@ -87,11 +85,8 @@ class Video(torch.utils.data.Dataset):
         self.frames = self.frames / torch.tensor(self.cfg.DATA.STD)
         # T H W C -> C T H W.
         self.frames = self.frames.permute(3, 0, 1, 2)
-        print(self.frames.size())
 
         self.frames = utils.pack_pathway_output(self.cfg, self.frames)
-        for f in self.frames:
-            print(f.size())
 
     def __getitem__(self, index):
         """

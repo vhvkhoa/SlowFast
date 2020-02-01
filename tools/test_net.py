@@ -44,8 +44,10 @@ def perform_test(test_loader, model, test_meter, cfg):
         if isinstance(inputs, (list,)):
             for i in range(len(inputs)):
                 inputs[i] = inputs[i].cuda(non_blocking=True)
+                print(inputs[i].size())
         else:
             inputs = inputs.cuda(non_blocking=True)
+            print(inputs.size())
 
         # Transfer the data to the current GPU device.
         labels = labels.cuda()
