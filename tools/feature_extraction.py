@@ -49,8 +49,10 @@ def perform_feature_extract(test_loader, model, cfg):
         if isinstance(inputs, (list,)):
             for i in range(len(inputs)):
                 inputs[i] = inputs[i].cuda(non_blocking=True)
+                print(inputs[i].size())
         else:
             inputs = inputs.cuda(non_blocking=True)
+            print(inputs.size())
 
         features = model(inputs)
 
