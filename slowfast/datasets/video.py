@@ -116,4 +116,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return math.floor((self.frames) / self.num_frames)
+        return math.floor(len(self.frames) / self.num_frames)
