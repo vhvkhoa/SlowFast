@@ -68,6 +68,7 @@ class Video(torch.utils.data.Dataset):
         fps = float(video_stream.average_rate)
         target_fps = 30
         target_sampling_rate = round(self.cfg.DATA.SAMPLING_RATE * fps / target_fps)
+        print(fps, target_fps, self.cfg.DATA.SAMPLING_RATE, target_sampling_rate)
 
         self.frames, idx = [], 0
         for frame in video_container.decode(video_stream):
