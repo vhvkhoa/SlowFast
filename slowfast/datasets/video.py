@@ -78,7 +78,7 @@ class Video(torch.utils.data.Dataset):
 
         self.frames, idx = [], 0
         for frame in video_container.decode(video_stream):
-            if frame.pts >= sampling_pts[idx]:
+            if idx < len(sampling_pts) and frame.pts >= sampling_pts[idx]:
                 self.frames.append(frame.to_rgb().to_ndarray())
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
