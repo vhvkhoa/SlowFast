@@ -101,7 +101,7 @@ class Video(torch.utils.data.Dataset):
         frames = frames / torch.tensor(self.cfg.DATA.STD)
 
         # T H W C -> C T H W.
-        self.frames = self.frames.permute(3, 0, 1, 2)
+        frames = frames.permute(3, 0, 1, 2)
 
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
         frames, _ = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size)

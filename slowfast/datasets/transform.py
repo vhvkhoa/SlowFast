@@ -41,7 +41,6 @@ def random_short_side_scale_jitter(images, min_size, max_size, boxes=None):
         new_width = int(math.floor((float(width) / height) * size))
         if boxes is not None:
             boxes = boxes * float(new_width) / width
-    print(images.size(), new_height, new_width)
 
     return (
         torch.nn.functional.interpolate(
