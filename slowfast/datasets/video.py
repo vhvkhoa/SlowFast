@@ -33,7 +33,7 @@ class Video(torch.utils.data.Dataset):
     bottom crop if the height is larger than the width.
     """
 
-    def __init__(self, cfg, path_to_video, num_retries=10):
+    def __init__(self, cfg, path_to_video, target_fps=30):
         """
         Construct the Kinetics video loader with a given csv file. The format of
         the csv file is:
@@ -54,6 +54,7 @@ class Video(torch.utils.data.Dataset):
         """
         self.cfg = cfg
         self.num_frames = cfg.DATA.NUM_FRAMES
+        self.target_fps = target_fps
 
         logger.info("Constructing VideoDataset for video {}...".format(path_to_video))
 
@@ -65,15 +66,21 @@ class Video(torch.utils.data.Dataset):
 
         # Decode video. Meta info is used to perform selective decoding.
         video_stream = video_container.streams.video[0]
+
         fps = float(video_stream.average_rate)
-        target_fps = 30
-        target_sampling_rate = round(self.cfg.DATA.SAMPLING_RATE * fps / target_fps)
+        frames_length = video_stream.frames
+        duration = video_stream.duration
+        timebase_per_frame = duration / frames_length
+
+        target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * timebase_per_frame * fps / target_fps
+
+        sampling_pts = torch.range(0, duration, target_sampling_rate)
 
         self.frames, idx = [], 0
         for frame in video_container.decode(video_stream):
-            if idx % target_sampling_rate == 0:
+            if frame.pts >= sampling_pts[idx]:
                 self.frames.append(frame.to_rgb().to_ndarray())
-            idx += 1
+                idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
         print(self.frames.size())
         print(math.ceil(len(self.frames) / self.num_frames))
