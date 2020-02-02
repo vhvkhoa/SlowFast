@@ -97,6 +97,7 @@ class Video(torch.utils.data.Dataset):
         # Perform color normalization.
         frame_index = index * self.num_frames
         frames = self.frames[:, frame_index: frame_index + self.num_frames, :, :]
+        print(frames.size())
         frames = frames.float()
         frames = frames / 255.0
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
