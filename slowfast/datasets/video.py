@@ -76,7 +76,7 @@ class Video(torch.utils.data.Dataset):
             idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
         print(self.frames.size())
-        print(math.floor(len(self.frames) / self.num_frames))
+        print(math.ceil(len(self.frames) / self.num_frames))
 
     def __getitem__(self, index):
         """
@@ -116,4 +116,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return math.floor(len(self.frames) / self.num_frames)
+        return math.ceil(len(self.frames) / self.num_frames)
