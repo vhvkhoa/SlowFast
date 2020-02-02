@@ -52,13 +52,13 @@ class Video(torch.utils.data.Dataset):
             num_retries (int): number of retries.
         """
         self.cfg = cfg
+        self.num_frames = cfg.DATA.NUM_FRAMES
 
         logger.info("Constructing VideoDataset for video {}...".format(path_to_video))
 
         assert os.path.exists(path_to_video), "video {} not found".format(
             path_to_video
         )
-        self._video_meta = {}
 
         video_container = av.open(path_to_video)
 
@@ -75,18 +75,8 @@ class Video(torch.utils.data.Dataset):
             idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
 
-        # Perform color normalization.
-        self.frames = self.frames.float()
-        self.frames = self.frames / 255.0
-        self.frames = self.frames - torch.tensor(self.cfg.DATA.MEAN)
-        self.frames = self.frames / torch.tensor(self.cfg.DATA.STD)
         # T H W C -> C T H W.
         self.frames = self.frames.permute(3, 0, 1, 2)
-
-        shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
-        self.frames, _ = transform.random_short_side_scale_jitter(self.frames, shorter_side_size, shorter_side_size)
-        # Two pathways. First: [C T/4 H W]. Second: [C T H W]
-        self.frames = utils.pack_pathway_output(self.cfg, self.frames)
 
     def __getitem__(self, index):
         """
@@ -103,7 +93,20 @@ class Video(torch.utils.data.Dataset):
                 decoded, then return the index of the video. If not, return the
                 index of the video replacement that can be decoded.
         """
-        return [path_way[:, index, ] for path_way in self.frames]
+        # Perform color normalization.
+        frame_index = index * self.num_frames
+        frames = frames[:, frame_index: frame_index + self.num_frames, :, :]
+        frames = frames.float()
+        frames = frames / 255.0
+        frames = frames - torch.tensor(self.cfg.DATA.MEAN)
+        frames = frames / torch.tensor(self.cfg.DATA.STD)
+
+        shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
+        frames, _ = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size)
+
+        # Two pathways. First: [C T/4 H W]. Second: [C T H W]
+        frames = utils.pack_pathway_output(self.cfg, frames)
+        return frames
 
     def __len__(self):
         """
