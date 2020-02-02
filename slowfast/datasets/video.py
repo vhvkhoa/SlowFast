@@ -66,17 +66,14 @@ class Video(torch.utils.data.Dataset):
         video_stream = video_container.streams.video[0]
         fps = float(video_stream.average_rate)
         target_fps = 30
-        sampling_rate = self.cfg.DATA.SAMPLING_RATE
-        num_samples = round(video_stream.frames / (sampling_rate * fps / target_fps))
+        target_sampling_rate = round(self.cfg.DATA.SAMPLING_RATE * fps / target_fps)
 
-        self.frames = []
+        self.frames, idx = [], 0
         for frame in video_container.decode(video_stream):
-            self.frames.append(frame.to_rgb().to_ndarray())
+            if idx % target_sampling_rate == 0:
+                self.frames.append(frame.to_rgb().to_ndarray())
+            idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
-
-        index = torch.linspace(0, len(self.frames), num_samples)
-        index = torch.clamp(index, 0, self.frames.shape[0] - 1).long()
-        self.frames = torch.index_select(self.frames, 0, index)
 
         # Perform color normalization.
         self.frames = self.frames.float()
@@ -90,7 +87,6 @@ class Video(torch.utils.data.Dataset):
         self.frames, _ = transform.random_short_side_scale_jitter(self.frames, shorter_side_size, shorter_side_size)
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]
         self.frames = utils.pack_pathway_output(self.cfg, self.frames)
-        print([f.size() for f in self.frames])
 
     def __getitem__(self, index):
         """
@@ -107,7 +103,7 @@ class Video(torch.utils.data.Dataset):
                 decoded, then return the index of the video. If not, return the
                 index of the video replacement that can be decoded.
         """
-        return [path_way[index] for path_way in self.frames]
+        return [path_way[:, index, ] for path_way in self.frames]
 
     def __len__(self):
         """
