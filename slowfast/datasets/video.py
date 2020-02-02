@@ -77,6 +77,7 @@ class Video(torch.utils.data.Dataset):
 
         # T H W C -> C T H W.
         self.frames = self.frames.permute(3, 0, 1, 2)
+        print(self.frames.size())
 
     def __getitem__(self, index):
         """
