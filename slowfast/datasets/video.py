@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
+import math
 import os
 import random
 import numpy as np
@@ -115,4 +116,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return max(len(path_way) for path_way in self.frames)
+        return math.floor((self.frames) / self.num_frames)
