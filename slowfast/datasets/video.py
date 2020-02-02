@@ -75,9 +75,6 @@ class Video(torch.utils.data.Dataset):
                 self.frames.append(frame.to_rgb().to_ndarray())
             idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
-
-        # T H W C -> C T H W.
-        self.frames = self.frames.permute(3, 0, 1, 2)
         print(self.frames.size())
 
     def __getitem__(self, index):
@@ -98,13 +95,16 @@ class Video(torch.utils.data.Dataset):
         # Perform color normalization.
         frame_index = index * self.num_frames
         frames = self.frames[:, frame_index: frame_index + self.num_frames, :, :]
-        print(frames.size())
         frames = frames.float()
         frames = frames / 255.0
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
         frames = frames / torch.tensor(self.cfg.DATA.STD)
 
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
+
+        # T H W C -> C T H W.
+        self.frames = self.frames.permute(3, 0, 1, 2)
+
         frames, _ = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size)
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]
