@@ -68,7 +68,6 @@ class Video(torch.utils.data.Dataset):
         fps = float(video_stream.average_rate)
         target_fps = 30
         target_sampling_rate = round(self.cfg.DATA.SAMPLING_RATE * fps / target_fps)
-        print(fps, target_fps, self.cfg.DATA.SAMPLING_RATE, target_sampling_rate)
 
         self.frames, idx = [], 0
         for frame in video_container.decode(video_stream):
@@ -77,6 +76,7 @@ class Video(torch.utils.data.Dataset):
             idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
         print(self.frames.size())
+        print(math.floor(len(self.frames) / self.num_frames))
 
     def __getitem__(self, index):
         """
@@ -116,4 +116,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return math.floor(self.frames.size(1) / self.num_frames)
+        return math.floor(len(self.frames) / self.num_frames)
