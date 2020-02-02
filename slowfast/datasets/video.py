@@ -74,7 +74,7 @@ class Video(torch.utils.data.Dataset):
 
         target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * timebase_per_frame * fps / target_fps
 
-        sampling_pts = torch.arange(0, duration, target_sampling_rate)
+        sampling_pts = torch.arange(0, duration + 1, target_sampling_rate)
 
         self.frames, idx = [], 0
         for frame in video_container.decode(video_stream):
