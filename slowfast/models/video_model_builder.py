@@ -120,7 +120,6 @@ class FuseFastToSlow(nn.Module):
         fuse = self.bn(fuse)
         fuse = self.relu(fuse)
         x_s_fuse = torch.cat([x_s, fuse], 1)
-        print(x_s.size(), x_f.size(), fuse.size())
         return [x_s_fuse, x_f]
 
 
