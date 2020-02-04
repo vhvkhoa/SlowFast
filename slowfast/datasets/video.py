@@ -7,6 +7,7 @@ import random
 import numpy as np
 import torch
 import torch.utils.data
+import torch.nn.functional as F
 
 from . import transform as transform
 from . import utils as utils
@@ -116,6 +117,9 @@ class Video(torch.utils.data.Dataset):
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]
         frames = utils.pack_pathway_output(self.cfg, frames)
+        if len(frames) == 2 and frames[0].size(1) * 4 != frames[1].size(1):
+            print(frames[0].size(), frames[1].size())
+            # F.pad(frames[0], (), mode='replicate')
         return frames
 
     def __len__(self):
