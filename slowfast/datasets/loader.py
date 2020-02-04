@@ -86,6 +86,7 @@ def construct_loader(cfg, split):
     dataset = build_dataset(dataset_name, cfg, split)
     # Create a sampler for multi-process training
     sampler = DistributedSampler(dataset) if cfg.NUM_GPUS > 1 else None
+    print(sampler)
     # Create a loader
     loader = torch.utils.data.DataLoader(
         dataset,
