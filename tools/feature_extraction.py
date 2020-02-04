@@ -71,6 +71,9 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
+    if not os.path.isdir(path_to_feat_dir):
+        os.makedirs(path_to_feat_dir)
+
     # Setup logging format.
     logging.setup_logging()
 
@@ -113,9 +116,10 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         logger.info("Extracting features with random initialization. Only for debugging.")
 
     # Create video feature extraction loaders.
-    for path_to_video in glob.iglob(osp.join(path_to_video_dir, '*')):
+    path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
+    for video_idx, path_to_video in enumerate(path_to_videos):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
-        logger.info("Testing model for {} iterations".format(len(video_extraction_loader)))
+        logger.info("Extracting features for {} iterations. Video number {}/{}".format(len(video_extraction_loader), video_idx + 1, len(path_to_videos)))
 
         video_features = perform_feature_extract(video_extraction_loader, model, cfg)
         np.save(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.npy'), video_features)
