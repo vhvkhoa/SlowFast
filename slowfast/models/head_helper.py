@@ -199,18 +199,14 @@ class ResNetBasicHead(nn.Module):
         pool_out = []
         for pathway in range(self.num_pathways):
             m = getattr(self, "pathway{}_avgpool".format(pathway))
-            print('Input pathway %d: ' % pathway, inputs[pathway].size())
             pool_out.append(m(inputs[pathway]))
         x = torch.cat(pool_out, 1)
-        print('After arg_pool: ', x.size())
         # (N, C, T, H, W) -> (N, T, H, W, C).
         x = x.permute((0, 2, 3, 4, 1))
-        print('After permute: ', x.size())
         # Perform dropout.
         if hasattr(self, "dropout"):
             x = self.dropout(x)
         x = self.projection(x)
-        print('After projection: ', x.size())
 
         # Performs fully convlutional inference.
         if not self.training:
@@ -218,7 +214,6 @@ class ResNetBasicHead(nn.Module):
             x = x.mean([1, 2, 3])
 
         x = x.view(x.shape[0], -1)
-        print('Output: ', x.size())
         return x
 
 
