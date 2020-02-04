@@ -50,12 +50,11 @@ def perform_feature_extract(test_loader, model, cfg):
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
                     inputs[i] = inputs[i].cuda(non_blocking=True)
-                    print(inputs[i].size())
             else:
                 inputs = inputs.cuda(non_blocking=True)
-                print(inputs.size())
 
             features = model(inputs)
+            print(features.size())
 
             # Gather all the predictions across all the devices to perform ensemble.
             if cfg.NUM_GPUS > 1:
