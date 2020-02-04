@@ -84,7 +84,7 @@ class Video(torch.utils.data.Dataset):
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
         print(self.frames.size())
-        print(math.ceil(len(self.frames) / self.num_frames))
+        print(math.floor(len(self.frames) / self.num_frames))
 
     def __getitem__(self, index):
         """
@@ -116,11 +116,8 @@ class Video(torch.utils.data.Dataset):
         frames, _ = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size)
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]. if T is not a multiple of 4, drop it.
-        if frames.size(1) % 4 == 0:
-            frames = utils.pack_pathway_output(self.cfg, frames)
-            return 'complete', frames
-        else:
-            return 'incomplete', frames
+        frames = utils.pack_pathway_output(self.cfg, frames)
+        return frames
 
     def __len__(self):
         """

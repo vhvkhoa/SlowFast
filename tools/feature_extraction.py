@@ -45,10 +45,8 @@ def perform_feature_extract(test_loader, model, cfg):
     all_features = []
 
     with torch.no_grad():
-        for status, inputs in test_loader:
+        for inputs in test_loader:
             # Transfer the data to the current GPU device.
-            if status == 'incomplete':
-                continue
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
                     inputs[i] = inputs[i].cuda(non_blocking=True)
