@@ -8,6 +8,35 @@ import torch.nn as nn
 from detectron2.layers import ROIAlign
 
 
+class RestNetRoIHeadFeatOut(ResNetRoIHead):
+    def forward(self, inputs, bboxes):
+        assert (
+            len(inputs) == self.num_pathways
+        ), "Input tensor does not contain {} pathway".format(self.num_pathways)
+        pool_out = []
+        for pathway in range(self.num_pathways):
+            t_pool = getattr(self, "s{}_tpool".format(pathway))
+            out = t_pool(inputs[pathway])
+            assert out.shape[2] == 1
+            out = torch.squeeze(out, 2)
+
+            roi_align = getattr(self, "s{}_roi".format(pathway))
+            out = roi_align(out, bboxes)
+
+            s_pool = getattr(self, "s{}_spool".format(pathway))
+            pool_out.append(s_pool(out))
+
+        # B C H W.
+        x = torch.cat(pool_out, 1)
+
+        # Perform dropout.
+        if hasattr(self, "dropout"):
+            x = self.dropout(x)
+
+        x = x.view(x.shape[0], -1)
+        return x
+
+
 class ResNetRoIHead(nn.Module):
     """
     ResNe(X)t RoI head.
@@ -199,14 +228,18 @@ class ResNetBasicHead(nn.Module):
         pool_out = []
         for pathway in range(self.num_pathways):
             m = getattr(self, "pathway{}_avgpool".format(pathway))
+            print('Input pathway %d: ' % pathway, inputs[pathway].size())
             pool_out.append(m(inputs[pathway]))
         x = torch.cat(pool_out, 1)
+        print('After arg_pool: ', x.size())
         # (N, C, T, H, W) -> (N, T, H, W, C).
         x = x.permute((0, 2, 3, 4, 1))
+        print('After permute: ', x.size())
         # Perform dropout.
         if hasattr(self, "dropout"):
             x = self.dropout(x)
         x = self.projection(x)
+        print('After projection: ', x.size())
 
         # Performs fully convlutional inference.
         if not self.training:
@@ -214,4 +247,5 @@ class ResNetBasicHead(nn.Module):
             x = x.mean([1, 2, 3])
 
         x = x.view(x.shape[0], -1)
+        print('Output: ', x.size())
         return x
