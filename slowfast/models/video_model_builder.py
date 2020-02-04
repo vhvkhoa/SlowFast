@@ -119,10 +119,8 @@ class FuseFastToSlow(nn.Module):
         fuse = self.conv_f2s(x_f)
         fuse = self.bn(fuse)
         fuse = self.relu(fuse)
-        try:
-            x_s_fuse = torch.cat([x_s, fuse], 1)
-        except:
-            print(x_s.size(), x_f.size(), fuse.size())
+        x_s_fuse = torch.cat([x_s, fuse], 1)
+        print(x_s.size(), x_f.size(), fuse.size())
         return [x_s_fuse, x_f]
 
 
