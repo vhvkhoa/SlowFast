@@ -127,6 +127,7 @@ def main():
 
     if args.feature_extraction:
         feature_extract(cfg=cfg, path_to_video_dir=args.video_dir, path_to_feat_dir=args.feat_dir)
+        return
 
     # Perform training.
     if cfg.TRAIN.ENABLE:
