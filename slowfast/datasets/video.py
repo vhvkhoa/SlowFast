@@ -117,7 +117,9 @@ class Video(torch.utils.data.Dataset):
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]. Pad T to multiple of 4 if needed
         if frames.size(1) % 4 != 0:
+            print(frames.size())
             pad = tuple([0] * 2 * (len(frames.size()) - 2) + [0, 4 - frames.size(1) % 4])
+            print(pad)
             F.pad(frames, pad, mode='replicate')
         frames = utils.pack_pathway_output(self.cfg, frames)
         return index, frames
