@@ -145,6 +145,7 @@ class SlowFastModel(nn.Module):
         self.num_pathways = 2
         self.detection_header = detection_header
         self.recognition_header = recognition_header
+        print(self.detection_header, self.recognition_header)
         self._construct_network(cfg)
         init_helper.init_weights(
             self, cfg.MODEL.FC_INIT_STD, cfg.RESNET.ZERO_INIT_FINAL_BN
@@ -564,7 +565,6 @@ class ResNetModel(nn.Module):
 
 class SlowFastModelFeatOut(SlowFastModel):
     def __init__(self, cfg):
-        print('hello from FeatOut')
         super(SlowFastModelFeatOut, self).__init__(
             cfg,
             detection_header=head_helper.ResNetBasicHeadFeatOut,
