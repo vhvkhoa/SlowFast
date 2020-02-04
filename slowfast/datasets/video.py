@@ -57,8 +57,6 @@ class Video(torch.utils.data.Dataset):
         self.num_frames = cfg.DATA.NUM_FRAMES
         self.target_fps = target_fps
 
-        logger.info("Constructing VideoDataset for video {}...".format(path_to_video))
-
         assert os.path.exists(path_to_video), "video {} not found".format(
             path_to_video
         )
@@ -83,8 +81,6 @@ class Video(torch.utils.data.Dataset):
                 self.frames.append(frame.to_rgb().to_ndarray())
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
-        print(self.frames.size())
-        print(math.floor(len(self.frames) / self.num_frames))
 
     def __getitem__(self, index):
         """
