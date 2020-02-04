@@ -564,6 +564,7 @@ class ResNetModel(nn.Module):
 
 class SlowFastModelFeatOut(SlowFastModel):
     def __init__(self, cfg):
+        print('hello from FeatOut')
         super(SlowFastModelFeatOut, self).__init__(
             cfg,
             detection_header=head_helper.ResNetBasicHeadFeatOut,
