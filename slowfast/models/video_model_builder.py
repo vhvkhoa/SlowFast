@@ -65,7 +65,6 @@ _POOL1 = {
     "i3d_nopool": [[1, 1, 1]],
     "slowonly": [[1, 1, 1]],
     "slowfast": [[1, 1, 1], [1, 1, 1]],
-    "slowfast_feature": [[1, 1, 1], [1, 1, 1]],
 }
 
 

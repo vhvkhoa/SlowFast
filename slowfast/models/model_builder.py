@@ -32,6 +32,8 @@ def build_model(cfg):
     ), "Cannot use more GPU devices than available"
 
     # Construct the model
+    if cfg.MODEL.ARCH == 'slowfast' and cfg.FEATURE_EXTRACT_ENABLE:
+        model = _MODEL_TYPES['slowfast_feature'](cfg)
     model = _MODEL_TYPES[cfg.MODEL.ARCH](cfg)
     # Determine the GPU used by the current process
     cur_device = torch.cuda.current_device()
