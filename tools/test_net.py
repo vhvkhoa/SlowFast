@@ -39,67 +39,68 @@ def perform_test(test_loader, model, test_meter, cfg):
     model.eval()
     test_meter.iter_tic()
 
-    for cur_iter, (inputs, labels, video_idx, meta) in enumerate(test_loader):
-        # Transfer the data to the current GPU device.
-        if isinstance(inputs, (list,)):
-            for i in range(len(inputs)):
-                inputs[i] = inputs[i].cuda(non_blocking=True)
-                print(inputs[i].size())
-        else:
-            inputs = inputs.cuda(non_blocking=True)
-            print(inputs.size())
-
-        # Transfer the data to the current GPU device.
-        labels = labels.cuda()
-        video_idx = video_idx.cuda()
-        for key, val in meta.items():
-            if isinstance(val, (list,)):
-                for i in range(len(val)):
-                    val[i] = val[i].cuda(non_blocking=True)
+    with torch.no_grad():
+        for cur_iter, (inputs, labels, video_idx, meta) in enumerate(test_loader):
+            # Transfer the data to the current GPU device.
+            if isinstance(inputs, (list,)):
+                for i in range(len(inputs)):
+                    inputs[i] = inputs[i].cuda(non_blocking=True)
+                    print(inputs[i].size())
             else:
-                meta[key] = val.cuda(non_blocking=True)
+                inputs = inputs.cuda(non_blocking=True)
+                print(inputs.size())
 
-        if cfg.DETECTION.ENABLE:
-            # Compute the predictions.
-            preds = model(inputs, meta["boxes"])
+            # Transfer the data to the current GPU device.
+            labels = labels.cuda()
+            video_idx = video_idx.cuda()
+            for key, val in meta.items():
+                if isinstance(val, (list,)):
+                    for i in range(len(val)):
+                        val[i] = val[i].cuda(non_blocking=True)
+                else:
+                    meta[key] = val.cuda(non_blocking=True)
 
-            preds = preds.cpu()
-            ori_boxes = meta["ori_boxes"].cpu()
-            metadata = meta["metadata"].cpu()
+            if cfg.DETECTION.ENABLE:
+                # Compute the predictions.
+                preds = model(inputs, meta["boxes"])
 
-            if cfg.NUM_GPUS > 1:
-                preds = torch.cat(du.all_gather_unaligned(preds), dim=0)
-                ori_boxes = torch.cat(du.all_gather_unaligned(ori_boxes), dim=0)
-                metadata = torch.cat(du.all_gather_unaligned(metadata), dim=0)
+                preds = preds.cpu()
+                ori_boxes = meta["ori_boxes"].cpu()
+                metadata = meta["metadata"].cpu()
 
-            test_meter.iter_toc()
-            # Update and log stats.
-            test_meter.update_stats(
-                preds.detach().cpu(),
-                ori_boxes.detach().cpu(),
-                metadata.detach().cpu(),
-            )
-            test_meter.log_iter_stats(None, cur_iter)
-        else:
-            # Perform the forward pass.
-            preds = model(inputs)
+                if cfg.NUM_GPUS > 1:
+                    preds = torch.cat(du.all_gather_unaligned(preds), dim=0)
+                    ori_boxes = torch.cat(du.all_gather_unaligned(ori_boxes), dim=0)
+                    metadata = torch.cat(du.all_gather_unaligned(metadata), dim=0)
 
-            # Gather all the predictions across all the devices to perform ensemble.
-            if cfg.NUM_GPUS > 1:
-                preds, labels, video_idx = du.all_gather(
-                    [preds, labels, video_idx]
+                test_meter.iter_toc()
+                # Update and log stats.
+                test_meter.update_stats(
+                    preds.detach().cpu(),
+                    ori_boxes.detach().cpu(),
+                    metadata.detach().cpu(),
                 )
+                test_meter.log_iter_stats(None, cur_iter)
+            else:
+                # Perform the forward pass.
+                preds = model(inputs)
 
-            test_meter.iter_toc()
-            # Update and log stats.
-            test_meter.update_stats(
-                preds.detach().cpu(),
-                labels.detach().cpu(),
-                video_idx.detach().cpu(),
-            )
-            test_meter.log_iter_stats(cur_iter)
+                # Gather all the predictions across all the devices to perform ensemble.
+                if cfg.NUM_GPUS > 1:
+                    preds, labels, video_idx = du.all_gather(
+                        [preds, labels, video_idx]
+                    )
 
-        test_meter.iter_tic()
+                test_meter.iter_toc()
+                # Update and log stats.
+                test_meter.update_stats(
+                    preds.detach().cpu(),
+                    labels.detach().cpu(),
+                    video_idx.detach().cpu(),
+                )
+                test_meter.log_iter_stats(cur_iter)
+
+            test_meter.iter_tic()
 
     # Log epoch stats and print the final testing results.
     test_meter.finalize_metrics()
