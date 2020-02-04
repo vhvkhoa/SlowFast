@@ -34,7 +34,8 @@ def build_model(cfg, feature_extraction=False):
     # Construct the model
     if cfg.MODEL.ARCH == 'slowfast' and feature_extraction:
         model = _MODEL_TYPES['slowfast_feature'](cfg)
-    model = _MODEL_TYPES[cfg.MODEL.ARCH](cfg)
+    else:
+        model = _MODEL_TYPES[cfg.MODEL.ARCH](cfg)
     # Determine the GPU used by the current process
     cur_device = torch.cuda.current_device()
     # Transfer the model to the current GPU device
