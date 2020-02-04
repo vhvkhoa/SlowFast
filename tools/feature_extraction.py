@@ -53,7 +53,7 @@ def perform_feature_extract(test_loader, model, cfg):
             else:
                 inputs = inputs.cuda(non_blocking=True)
 
-            print([f.size for f in inputs])
+            print([f.size() for f in inputs])
             features = model(inputs)
 
             # Gather all the predictions across all the devices to perform ensemble.
