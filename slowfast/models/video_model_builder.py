@@ -132,7 +132,7 @@ class SlowFastModel(nn.Module):
     https://arxiv.org/pdf/1812.03982.pdf
     """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, detection_header=head_helper.ResNetRoIHead, recognition_header=head_helper.ResNetBasicHead):
         """
         The `__init__` method of any subclass should also contain these
             arguments.
@@ -309,7 +309,7 @@ class SlowFastModel(nn.Module):
         )
 
         if cfg.DETECTION.ENABLE:
-            self.head = head_helper.ResNetRoIHead(
+            self.head = detection_header(
                 dim_in=[
                     width_per_group * 32,
                     width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
@@ -332,7 +332,7 @@ class SlowFastModel(nn.Module):
                 aligned=cfg.DETECTION.ALIGNED,
             )
         else:
-            self.head = head_helper.ResNetBasicHead(
+            self.head = recognition_header(
                 dim_in=[
                     width_per_group * 32,
                     width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
@@ -562,51 +562,7 @@ class ResNetModel(nn.Module):
 
 class SlowFastModelFeatOut(SlowFastModel):
     def __init__(self, cfg):
-        super(SlowFastModelFeatOut, self).__init__(cfg)
-
-        if cfg.DETECTION.ENABLE:
-            self.head = head_helper.RestNetRoIHeadFeatOut(
-                dim_in=[
-                    width_per_group * 32,
-                    width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
-                ],
-                num_classes=cfg.MODEL.NUM_CLASSES,
-                pool_size=[
-                    [
-                        cfg.DATA.NUM_FRAMES
-                        // cfg.SLOWFAST.ALPHA
-                        // pool_size[0][0],
-                        1,
-                        1,
-                    ],
-                    [cfg.DATA.NUM_FRAMES // pool_size[1][0], 1, 1],
-                ],
-                resolution=[[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2] * 2,
-                scale_factor=[cfg.DETECTION.SPATIAL_SCALE_FACTOR] * 2,
-                dropout_rate=cfg.MODEL.DROPOUT_RATE,
-                act_func="sigmoid",
-                aligned=cfg.DETECTION.ALIGNED,
-            )
-        else:
-            self.head = head_helper.ResNetBasicHeadFeatOut(
-                dim_in=[
-                    width_per_group * 32,
-                    width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
-                ],
-                num_classes=cfg.MODEL.NUM_CLASSES,
-                pool_size=[
-                    [
-                        cfg.DATA.NUM_FRAMES
-                        // cfg.SLOWFAST.ALPHA
-                        // pool_size[0][0],
-                        cfg.DATA.CROP_SIZE // 32 // pool_size[0][1],
-                        cfg.DATA.CROP_SIZE // 32 // pool_size[0][2],
-                    ],
-                    [
-                        cfg.DATA.NUM_FRAMES // pool_size[1][0],
-                        cfg.DATA.CROP_SIZE // 32 // pool_size[1][1],
-                        cfg.DATA.CROP_SIZE // 32 // pool_size[1][2],
-                    ],
-                ],
-                dropout_rate=cfg.MODEL.DROPOUT_RATE,
-            )
+        super(SlowFastModelFeatOut, self).__init__(
+            cfg,
+            detection_header=head_helper.ResNetBasicHeadFeatOut,
+            recognition_header=head_helper.ResNetBasicHeadFeatOut)
