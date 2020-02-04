@@ -219,6 +219,7 @@ class ResNetBasicHead(nn.Module):
 
 class ResNetBasicHeadFeatOut(ResNetBasicHead):
     def forward(self, inputs):
+        print('hello')
         assert (
             len(inputs) == self.num_pathways
         ), "Input tensor does not contain {} pathway".format(self.num_pathways)
