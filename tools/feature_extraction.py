@@ -4,6 +4,7 @@
 
 """Multi-view test a video classification model."""
 
+import os
 import os.path as osp
 import glob
 import argparse
