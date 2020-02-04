@@ -143,6 +143,8 @@ class SlowFastModel(nn.Module):
         super(SlowFastModel, self).__init__()
         self.enable_detection = cfg.DETECTION.ENABLE
         self.num_pathways = 2
+        self.detection_header = detection_header
+        self.recognition_header = recognition_header
         self._construct_network(cfg)
         init_helper.init_weights(
             self, cfg.MODEL.FC_INIT_STD, cfg.RESNET.ZERO_INIT_FINAL_BN
@@ -309,7 +311,7 @@ class SlowFastModel(nn.Module):
         )
 
         if cfg.DETECTION.ENABLE:
-            self.head = detection_header(
+            self.head = self.detection_header(
                 dim_in=[
                     width_per_group * 32,
                     width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
@@ -332,7 +334,7 @@ class SlowFastModel(nn.Module):
                 aligned=cfg.DETECTION.ALIGNED,
             )
         else:
-            self.head = recognition_header(
+            self.head = self.recognition_header(
                 dim_in=[
                     width_per_group * 32,
                     width_per_group * 32 // cfg.SLOWFAST.BETA_INV,
