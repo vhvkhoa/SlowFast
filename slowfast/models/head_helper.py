@@ -217,6 +217,23 @@ class ResNetBasicHead(nn.Module):
         return x
 
 
+class ResNetBasicHeadFeatOut(ResNetBasicHead):
+    def forward(self, inputs):
+        assert (
+            len(inputs) == self.num_pathways
+        ), "Input tensor does not contain {} pathway".format(self.num_pathways)
+        pool_out = []
+        for pathway in range(self.num_pathways):
+            m = getattr(self, "pathway{}_avgpool".format(pathway))
+            pool_out.append(m(inputs[pathway]))
+        x = torch.cat(pool_out, 1)
+        # (N, C, T, H, W) -> (N, T, H, W, C).
+        x = x.permute((0, 2, 3, 4, 1))
+
+        x = x.view(x.shape[0], -1)
+        return x
+
+
 class RestNetRoIHeadFeatOut(ResNetRoIHead):
     def forward(self, inputs, bboxes):
         assert (
@@ -237,10 +254,6 @@ class RestNetRoIHeadFeatOut(ResNetRoIHead):
 
         # B C H W.
         x = torch.cat(pool_out, 1)
-
-        # Perform dropout.
-        if hasattr(self, "dropout"):
-            x = self.dropout(x)
 
         x = x.view(x.shape[0], -1)
         return x

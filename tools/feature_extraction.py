@@ -60,6 +60,7 @@ def perform_feature_extract(test_loader, model, cfg):
             if cfg.NUM_GPUS > 1:
                 features = du.all_gather([features])
 
+            print(features.size())
             all_features.append(features.cpu())
 
     return torch.cat(all_features, dim=0)
