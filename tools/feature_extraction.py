@@ -44,22 +44,23 @@ def perform_feature_extract(test_loader, model, cfg):
 
     all_features = []
 
-    for inputs in test_loader:
-        # Transfer the data to the current GPU device.
-        if isinstance(inputs, (list,)):
-            for i in range(len(inputs)):
-                inputs[i] = inputs[i].cuda(non_blocking=True)
-        else:
-            inputs = inputs.cuda(non_blocking=True)
+    with torch.no_grad():
+        for inputs in test_loader:
+            # Transfer the data to the current GPU device.
+            if isinstance(inputs, (list,)):
+                for i in range(len(inputs)):
+                    inputs[i] = inputs[i].cuda(non_blocking=True)
+            else:
+                inputs = inputs.cuda(non_blocking=True)
 
-        features = model(inputs)
-        print(features.size())
+            features = model(inputs)
+            print(features.size())
 
-        # Gather all the predictions across all the devices to perform ensemble.
-        if cfg.NUM_GPUS > 1:
-            features = du.all_gather([features])
+            # Gather all the predictions across all the devices to perform ensemble.
+            if cfg.NUM_GPUS > 1:
+                features = du.all_gather([features])
 
-        all_features.append(features.cpu())
+            all_features.append(features.cpu())
 
     return torch.cat(all_features, dim=0)
 
