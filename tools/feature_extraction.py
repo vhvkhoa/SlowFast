@@ -45,7 +45,8 @@ def perform_feature_extract(test_loader, model, cfg):
     all_features = []
 
     with torch.no_grad():
-        for inputs in test_loader:
+        for index, inputs in test_loader:
+            print(index)
             # Transfer the data to the current GPU device.
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):

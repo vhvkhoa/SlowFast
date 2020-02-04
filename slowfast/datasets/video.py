@@ -101,7 +101,6 @@ class Video(torch.utils.data.Dataset):
                 decoded, then return the index of the video. If not, return the
                 index of the video replacement that can be decoded.
         """
-        print(index)
         # Perform color normalization.
         frame_index = index * self.num_frames
         frames = self.frames[frame_index: frame_index + self.num_frames]
@@ -121,7 +120,7 @@ class Video(torch.utils.data.Dataset):
         if len(frames) == 2 and frames[0].size(1) * 4 != frames[1].size(1):
             print(frames[0].size(), frames[1].size())
             # F.pad(frames[0], (), mode='replicate')
-        return frames
+        return index, frames
 
     def __len__(self):
         """
