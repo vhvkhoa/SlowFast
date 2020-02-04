@@ -53,7 +53,6 @@ def perform_feature_extract(test_loader, model, cfg):
             else:
                 inputs = inputs.cuda(non_blocking=True)
 
-            print([f.size() for f in inputs])
             features = model(inputs)
 
             # Gather all the predictions across all the devices to perform ensemble.
@@ -119,4 +118,4 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         logger.info("Testing model for {} iterations".format(len(video_extraction_loader)))
 
         video_features = perform_feature_extract(video_extraction_loader, model, cfg)
-        np.save(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.npy'))
+        np.save(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.npy'), video_features)
