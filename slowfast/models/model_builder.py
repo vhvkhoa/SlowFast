@@ -17,7 +17,7 @@ _MODEL_TYPES = {
 }
 
 
-def build_model(cfg):
+def build_model(cfg, feature_extraction=False):
     """
     Builds the video model.
     Args:
@@ -32,7 +32,7 @@ def build_model(cfg):
     ), "Cannot use more GPU devices than available"
 
     # Construct the model
-    if cfg.MODEL.ARCH == 'slowfast' and cfg.FEATURE_EXTRACT_ENABLE:
+    if cfg.MODEL.ARCH == 'slowfast' and feature_extraction:
         model = _MODEL_TYPES['slowfast_feature'](cfg)
     model = _MODEL_TYPES[cfg.MODEL.ARCH](cfg)
     # Determine the GPU used by the current process
