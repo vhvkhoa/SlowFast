@@ -116,7 +116,6 @@ class Video(torch.utils.data.Dataset):
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]
         frames = utils.pack_pathway_output(self.cfg, frames)
-        print([f.size() for f in frames])
         return frames
 
     def __len__(self):
