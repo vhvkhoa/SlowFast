@@ -117,6 +117,7 @@ class Video(torch.utils.data.Dataset):
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]
         frames = utils.pack_pathway_output(self.cfg, frames)
+        print(frames[0].size(), frames[1].size())
         if len(frames) == 2 and frames[0].size(1) * 4 != frames[1].size(1):
             print(frames[0].size(), frames[1].size())
             # F.pad(frames[0], (), mode='replicate')
