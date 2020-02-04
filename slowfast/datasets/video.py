@@ -115,11 +115,11 @@ class Video(torch.utils.data.Dataset):
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
         frames, _ = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size)
 
-        # Two pathways. First: [C T/4 H W]. Second: [C T H W]
+        # Two pathways. First: [C T/4 H W]. Second: [C T H W]. Pad T to multiple of 4 if needed
+        if frames.size(1) % 4 != 0:
+            pad = tuple([0] * 2 * len(frames.size() - 2) + [0, 4 - frames.size(1) % 4])
+            F.pad(frames[0], pad, mode='replicate')
         frames = utils.pack_pathway_output(self.cfg, frames)
-        if len(frames) == 2 and frames[0].size(1) * 4 != frames[1].size(1):
-            print(frames[0].size(), frames[1].size())
-            # F.pad(frames[0], (), mode='replicate')
         return index, frames
 
     def __len__(self):
