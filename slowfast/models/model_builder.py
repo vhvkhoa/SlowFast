@@ -9,7 +9,7 @@ from slowfast.models.video_model_builder import ResNetModel, SlowFastModel
 
 # Supported model types
 _MODEL_TYPES = {
-    "slowfast_feature"SlowFastFeatureModel,
+#    "slowfast_feature": SlowFastFeatureModel,
     "slowfast": SlowFastModel,
     "slowonly": ResNetModel,
     "c2d": ResNetModel,
