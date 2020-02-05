@@ -97,7 +97,7 @@ class Video(torch.utils.data.Dataset):
                 self.pts.append(video_bboxes['idx_secs'])
                 self.bboxes[video_bboxes['idx_secs']] = video_bboxes['frame_bboxes']
 
-        print(math.floor(len(self.frames) / self.num_frames))
+        print(len(self.frames), self.num_frames)
 
     def __getitem__(self, index):
         """
