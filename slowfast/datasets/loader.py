@@ -109,8 +109,8 @@ def construct_loader(cfg, split):
         num_workers=cfg.DATA_LOADER.NUM_WORKERS,
         pin_memory=cfg.DATA_LOADER.PIN_MEMORY,
         drop_last=drop_last,
-        collate_fn=detection_collate if cfg.DETECTION.ENABLE and split in ['train', 'val', 'test']
-                                     elif cfg.DETECTION.ENABLE feature_extract_bbox
+        collate_fn=detection_collate if (cfg.DETECTION.ENABLE and split in ['train', 'val', 'test'])
+                                     else feature_extract_bbox if cfg.DETECTION.ENABLE
                                      else None,
     )
     return loader
