@@ -94,8 +94,8 @@ class Video(torch.utils.data.Dataset):
             self.secs_per_frame = bboxes_data['secs_per_frame']
             self.bboxes, self.pts = {}, []
             for video_bboxes in bboxes_data['video_bboxes']:
-                self.pts.append(video_bboxes['id_secs'])
-                self.bboxes[video_bboxes['id_secs']] = video_bboxes['frame_bboxes']
+                self.pts.append(video_bboxes['idx_secs'])
+                self.bboxes[video_bboxes['idx_secs']] = video_bboxes['frame_bboxes']
 
     def __getitem__(self, index):
         """
