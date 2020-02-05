@@ -14,6 +14,20 @@ from torch.utils.data.sampler import RandomSampler
 from .build import build_dataset
 
 
+def feature_extract_bbox(batch):
+    indices, inputs, bboxes = zip(*batch)
+    bboxes = [
+        np.concatenate(
+            [np.full((bboxes[i].shape[0], 1), float(i)), bboxes[i]], axis=1
+        ) for i in range(len(bboxes))
+    ]
+
+    bboxes = torch.tensor(np.concatenate(bboxes, axis=0)).float()
+    inputs, indices = default_collate(inputs), default_collate(indices)
+
+    return indices, inputs, bboxes
+
+
 def detection_collate(batch):
     """
     Collate function for detection task. Concatanate bboxes, labels and
@@ -95,7 +109,9 @@ def construct_loader(cfg, split):
         num_workers=cfg.DATA_LOADER.NUM_WORKERS,
         pin_memory=cfg.DATA_LOADER.PIN_MEMORY,
         drop_last=drop_last,
-        collate_fn=detection_collate if cfg.DETECTION.ENABLE else None,
+        collate_fn=detection_collate if cfg.DETECTION.ENABLE and split in ['train', 'val', 'test']
+                                     elif cfg.DETECTION.ENABLE feature_extract_bbox
+                                     else None,
     )
     return loader
 

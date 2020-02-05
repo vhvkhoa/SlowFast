@@ -3,6 +3,7 @@
 
 import math
 import os
+import json
 import random
 import numpy as np
 import torch
@@ -81,6 +82,15 @@ class Video(torch.utils.data.Dataset):
                 self.frames.append(frame.to_rgb().to_ndarray())
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
+        
+        with open(os.path.splitext(os.path.basename(path_to_video)[0] + '.json') as f:
+            bboxes_data = json.load(f)
+            self.num_frames = bboxes_data['num_frames']
+            self.secs_per_frame = bboxes_data['secs_per_frame']
+            self.bboxes, self.pts = {}, []
+            for bbox_data in bboxes_data['bboxes']:
+                self.pts.append(bbox_data['id_secs'])
+                self.bboxes[bbox_data['id_secs']] = bbox_data['bboxes']
 
     def __getitem__(self, index):
         """
@@ -108,12 +118,19 @@ class Video(torch.utils.data.Dataset):
         # T H W C -> C T H W.
         frames = frames.permute(3, 0, 1, 2)
 
+        assert (
+            self.pts[index] >= frame_index * self.secs_per_frame and
+            self.pts[index] <= (frame_index + self.num_frames) * self.secs_per_frame
+        ), 'Inconsistent bounding boxes indexing and frames indexing.'
+
+        bboxes = self.bboxes[self.pts[index]]
+
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
-        frames, _ = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size)
+        frames, bboxes = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size, bboxes)
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]. if T is not a multiple of 4, drop it.
         frames = utils.pack_pathway_output(self.cfg, frames)
-        return frames
+        return index, frames, bboxes
 
     def __len__(self):
         """

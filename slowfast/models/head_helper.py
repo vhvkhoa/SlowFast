@@ -233,7 +233,6 @@ class ResNetBasicHeadFeatOut(ResNetBasicHead):
         if not self.training:
             x = x.mean([1, 2, 3])
 
-        print(x.size())
         x = x.view(x.shape[0], -1)
         return x
 
