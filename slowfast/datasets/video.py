@@ -90,14 +90,11 @@ class Video(torch.utils.data.Dataset):
 
         with open(bbox_path, 'r') as f:
             bboxes_data = json.load(f)
-            self.num_frames = bboxes_data['num_frames']
             self.secs_per_frame = bboxes_data['secs_per_frame']
             self.bboxes, self.pts = {}, []
             for video_bboxes in bboxes_data['video_bboxes']:
                 self.pts.append(video_bboxes['idx_secs'])
                 self.bboxes[video_bboxes['idx_secs']] = video_bboxes['frame_bboxes']
-
-        print(len(self.frames), self.num_frames)
 
     def __getitem__(self, index):
         """
