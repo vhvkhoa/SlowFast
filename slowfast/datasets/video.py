@@ -128,6 +128,7 @@ class Video(torch.utils.data.Dataset):
         ), 'Inconsistent bounding boxes indexing and frames indexing.'
 
         bboxes = self.bboxes[self.pts[index]]
+        print(bboxes)
 
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
         frames, bboxes = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size, bboxes)
