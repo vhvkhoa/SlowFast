@@ -230,6 +230,9 @@ class ResNetBasicHeadFeatOut(ResNetBasicHead):
         # (N, C, T, H, W) -> (N, T, H, W, C).
         x = x.permute((0, 2, 3, 4, 1))
 
+        if not self.training:
+            x = x.mean([1, 2, 3])
+
         print(x.size())
         x = x.view(x.shape[0], -1)
         return x
