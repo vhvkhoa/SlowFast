@@ -55,7 +55,7 @@ class Video(torch.utils.data.Dataset):
             num_retries (int): number of retries.
         """
         self.cfg = cfg
-        self.num_frames = cfg.DATA.NUM_FRAMES
+        self.num_samples = cfg.DATA.NUM_FRAMES
         self.target_fps = target_fps
 
         assert os.path.exists(path_to_video), "video {} not found".format(
@@ -112,8 +112,8 @@ class Video(torch.utils.data.Dataset):
                 index of the video replacement that can be decoded.
         """
         # Perform color normalization.
-        frame_index = index * self.num_frames
-        frames = self.frames[frame_index: frame_index + self.num_frames]
+        frame_index = index * self.num_samples
+        frames = self.frames[frame_index: frame_index + self.num_samples]
         frames = frames.float()
         frames = frames / 255.0
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
@@ -124,7 +124,7 @@ class Video(torch.utils.data.Dataset):
 
         assert (
             self.pts[index] >= frame_index * self.secs_per_frame and
-            self.pts[index] <= (frame_index + self.num_frames) * self.secs_per_frame
+            self.pts[index] <= (frame_index + self.num_samples) * self.secs_per_frame
         ), 'Inconsistent bounding boxes indexing and frames indexing.'
 
         bboxes = self.bboxes[self.pts[index]]
@@ -141,4 +141,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return math.floor(len(self.frames) / self.num_frames)
+        return math.floor(len(self.frames) / self.num_samples)
