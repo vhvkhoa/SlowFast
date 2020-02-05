@@ -83,7 +83,9 @@ class Video(torch.utils.data.Dataset):
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
         
-        with open(os.path.splitext(os.path.basename(path_to_video)[0] + '.json') as f:
+        assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
+        bbox_path = os.path.join(cfg.DATA.PATH_TO_BBOX_DIR, os.path.splitext(os.path.basename(path_to_video)[0] + '.json')
+        with open(bbox_path, 'r') as f:
             bboxes_data = json.load(f)
             self.num_frames = bboxes_data['num_frames']
             self.secs_per_frame = bboxes_data['secs_per_frame']
