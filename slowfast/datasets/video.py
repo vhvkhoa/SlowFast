@@ -21,6 +21,10 @@ from .build import DATASET_REGISTRY
 logger = logging.get_logger(__name__)
 
 
+CAPTURED_CLASS_IDS = [0]
+THRESHOLD = 0.5
+
+
 @DATASET_REGISTRY.register()
 class Video(torch.utils.data.Dataset):
     """
@@ -94,7 +98,10 @@ class Video(torch.utils.data.Dataset):
             self.bboxes, self.pts = {}, []
             for video_bboxes in bboxes_data['video_bboxes']:
                 self.pts.append(video_bboxes['idx_secs'])
-                self.bboxes[video_bboxes['idx_secs']] = video_bboxes['frame_bboxes']
+                self.bboxes[video_bboxes['idx_secs']] = []
+                for bbox in video_bboxes['frame_bboxes']:
+                    if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
+                        self.bboxes[video_bboxes['idx_secs']].append(bbox['box'])
 
     def __getitem__(self, index):
         """
@@ -128,7 +135,6 @@ class Video(torch.utils.data.Dataset):
         ), 'Inconsistent bounding boxes indexing and frames indexing.'
 
         bboxes = self.bboxes[self.pts[index]]
-        print(bboxes)
 
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
         frames, bboxes = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size, bboxes)
