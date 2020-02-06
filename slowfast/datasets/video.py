@@ -75,7 +75,7 @@ class Video(torch.utils.data.Dataset):
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
         self.frames, sampling_idx, fail_count = [], 0, 0
-        for frame_idx in range(frames_length)
+        for frame_idx in range(frames_length):
             success, frame = video.read()
             if success:
                 if sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]:
