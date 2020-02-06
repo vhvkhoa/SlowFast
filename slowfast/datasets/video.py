@@ -6,6 +6,7 @@ import os
 import json
 import random
 import numpy as np
+import cv2
 import torch
 import torch.utils.data
 import torch.nn.functional as F
@@ -70,24 +71,27 @@ class Video(torch.utils.data.Dataset):
 
         # Decode video. Meta info is used to perform selective decoding.
         video_stream = video_container.streams.video[0]
+        video_capture = cv2.Video_Capture(path_to_video)
 
-        fps = float(video_stream.average_rate)
-        frames_length = video_stream.frames
+        fps = video.get(cv2.CAP_PROP_FPS)
+        frames_length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
         target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * fps / target_fps
 
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
-        self.frames, idx = [], 0
-        for frame_idx, frame in enumerate(video_container.decode(video_stream)):
-            if len(sampling_pts) == 0 or (idx < len(sampling_pts) and frame_idx >= sampling_pts[idx]):
-                self.frames.append(frame.to_rgb().to_ndarray())
-                idx += 1
+        self.frames, sampling_idx = [], 0
+        for frame_idx in range(frames_length):
+            _, frame = video_capture.read()
+            print(type(frame))
+            if len(sampling_pts) == 0 or (sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]):
+                self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                sampling_idx += 1
 
         self.frames = torch.as_tensor(np.stack(self.frames))
         print(self.frames[0, :3, :3, :])
         print(path_to_video, self.frames.size())
-        
+
         if cfg.DETECTION.ENABLE:
             assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
             bbox_path = os.path.join(
