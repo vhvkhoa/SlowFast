@@ -78,9 +78,9 @@ class Video(torch.utils.data.Dataset):
         for frame_idx in range(frames_length):
             _, frame = video.read()
             try:
-            if len(sampling_pts) == 0 or (sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]):
-                self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                sampling_idx += 1
+                if len(sampling_pts) == 0 or (sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]):
+                    self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                    sampling_idx += 1
             except:
                 print(_)
                 print(frame[0][0])
