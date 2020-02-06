@@ -50,6 +50,7 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
             if len(bboxes) == 0:
                 for index in indices:
                     all_features[index] = []
+                continue
 
             # Transfer the data to the current GPU device.
             if isinstance(inputs, (list,)):
