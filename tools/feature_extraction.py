@@ -181,5 +181,5 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
 
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
-            with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'r') as f:
+            with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
                 json.dump(video_features, f)
