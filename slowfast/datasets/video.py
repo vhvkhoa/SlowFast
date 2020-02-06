@@ -73,16 +73,14 @@ class Video(torch.utils.data.Dataset):
 
         fps = float(video_stream.average_rate)
         frames_length = video_stream.frames
-        duration = video_stream.duration
-        timebase_per_frame = duration / frames_length
 
-        target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * timebase_per_frame * fps / target_fps
+        target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * fps / target_fps
 
-        sampling_pts = torch.arange(0, duration + 1, target_sampling_rate)
+        sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
         self.frames, idx = [], 0
-        for frame in video_container.decode(video_stream):
-            if idx < len(sampling_pts) and frame.pts >= sampling_pts[idx]:
+        for frame_idx, frame in enumerate(video_container.decode(video_stream)):
+            if idx < len(sampling_pts) and frame_idx >= sampling_pts[idx]:
                 self.frames.append(frame.to_rgb().to_ndarray())
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
@@ -105,6 +103,7 @@ class Video(torch.utils.data.Dataset):
                         frame_bboxes.append(bbox['box'])
 
                 self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
+            print(len(self.bboxes))
 
     def __getitem__(self, index):
         """
