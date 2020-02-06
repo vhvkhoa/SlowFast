@@ -46,7 +46,8 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
     all_features = []
 
     with torch.no_grad():
-        for indices, inputs, bboxes in test_loader:
+        for inputs, bboxes, indices in test_loader:
+            print(indices)
             if len(bboxes) == 0:
                 continue
             # Transfer the data to the current GPU device.
