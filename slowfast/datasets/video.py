@@ -67,11 +67,7 @@ class Video(torch.utils.data.Dataset):
             path_to_video
         )
 
-        video_container = av.open(path_to_video)
-
-        # Decode video. Meta info is used to perform selective decoding.
-        video_stream = video_container.streams.video[0]
-        video_capture = cv2.VideoCapture(path_to_video)
+        video = cv2.VideoCapture(path_to_video)
 
         fps = video.get(cv2.CAP_PROP_FPS)
         frames_length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -82,7 +78,7 @@ class Video(torch.utils.data.Dataset):
 
         self.frames, sampling_idx = [], 0
         for frame_idx in range(frames_length):
-            _, frame = video_capture.read()
+            _, frame = video.read()
             print(type(frame))
             if len(sampling_pts) == 0 or (sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]):
                 self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
