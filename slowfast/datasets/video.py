@@ -74,17 +74,15 @@ class Video(torch.utils.data.Dataset):
 
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
-        self.frames, sampling_idx, frame_idx, fail_count = [], 0, 0, 0
-        while video.isOpened() and frame_idx < frames_length:
+        self.frames, sampling_idx, fail_count = [], 0, 0
+        for frame_idx in range(frames_length)
             success, frame = video.read()
-
             if success:
                 if sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]:
                     self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                     sampling_idx += 1
             else:
                 fail_count += 1
-            frame_idx += 1
         
         print('Failed to read %d. Read %d/%d frames' % (fail_count, len(frames), frames_length))
 
@@ -132,7 +130,6 @@ class Video(torch.utils.data.Dataset):
         frames = frames / 255.0
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
         frames = frames / torch.tensor(self.cfg.DATA.STD)
-
 
         # T H W C -> C T H W.
         frames = frames.permute(3, 0, 1, 2)
