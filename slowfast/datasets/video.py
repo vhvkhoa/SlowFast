@@ -15,8 +15,6 @@ from . import transform as transform
 from . import utils as utils
 import slowfast.utils.logging as logging
 
-import av
-
 from .build import DATASET_REGISTRY
 
 logger = logging.get_logger(__name__)
@@ -76,6 +74,7 @@ class Video(torch.utils.data.Dataset):
 
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
+        print(frames_length)
         self.frames, sampling_idx = [], 0
         for frame_idx in range(frames_length):
             _, frame = video.read()
@@ -84,8 +83,6 @@ class Video(torch.utils.data.Dataset):
                 sampling_idx += 1
 
         self.frames = torch.as_tensor(np.stack(self.frames))
-        print(self.frames[0, :3, :3, :])
-        print(path_to_video, self.frames.size())
 
         if cfg.DETECTION.ENABLE:
             assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
