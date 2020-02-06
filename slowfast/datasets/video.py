@@ -78,6 +78,9 @@ class Video(torch.utils.data.Dataset):
 
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
+        if len(sampling_pts) == 0:
+            sampling_pts = torch.arange(0, frames_length + 1)
+
         self.frames, idx = [], 0
         for frame_idx, frame in enumerate(video_container.decode(video_stream)):
             if idx < len(sampling_pts) and frame_idx >= sampling_pts[idx]:
