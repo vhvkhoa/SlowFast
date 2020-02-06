@@ -73,21 +73,19 @@ class Video(torch.utils.data.Dataset):
 
         fps = float(video_stream.average_rate)
         frames_length = video_stream.frames
-        print(frames_length)
 
         target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * fps / target_fps
 
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
-        if len(sampling_pts) == 0:
-            sampling_pts = torch.arange(0, frames_length + 1)
-
         self.frames, idx = [], 0
         for frame_idx, frame in enumerate(video_container.decode(video_stream)):
-            if idx < len(sampling_pts) and frame_idx >= sampling_pts[idx]:
+            if len(sampling_pts) == 0 or (idx < len(sampling_pts) and frame_idx >= sampling_pts[idx]):
                 self.frames.append(frame.to_rgb().to_ndarray())
                 idx += 1
+
         self.frames = torch.as_tensor(np.stack(self.frames))
+        print(self.frames.size())
         
         if cfg.DETECTION.ENABLE:
             assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
