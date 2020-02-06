@@ -74,17 +74,15 @@ class Video(torch.utils.data.Dataset):
 
         sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate)
 
-        self.frames, sampling_idx = [], 0
-        for frame_idx in range(frames_length):
-            _, frame = video.read()
-            try:
-                if len(sampling_pts) == 0 or (sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]):
-                    self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                    sampling_idx += 1
-            except:
-                print(_)
-                print(frame[0][0])
-                raise TypeError
+        self.frames, sampling_idx, frame_idx = [], 0, 0
+        while video.isOpened():
+            success, frame = video.read()
+            if not success:
+                continue
+            if sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]:
+                self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                sampling_idx += 1
+            frame_idx += 1
 
         self.frames = torch.as_tensor(np.stack(self.frames))
 
