@@ -110,8 +110,6 @@ class Video(torch.utils.data.Dataset):
 
                     self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
 
-            print(len(self.bboxes))
-
     def __getitem__(self, index):
         """
         Given the video index, return the list of frames, label, and video
