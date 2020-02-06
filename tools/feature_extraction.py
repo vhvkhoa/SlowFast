@@ -70,7 +70,6 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
             for index in indices:
                 all_features[index] = features.cpu().tolist()
 
-    all_features = torch.cat(all_features, dim=0)
     return all_features
 
 
