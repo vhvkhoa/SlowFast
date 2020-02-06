@@ -43,13 +43,14 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = []
+    all_features = {}
 
     with torch.no_grad():
         for inputs, bboxes, indices in test_loader:
-            print(indices)
             if len(bboxes) == 0:
-                continue
+                for index in indices:
+                    all_features[index] = []
+
             # Transfer the data to the current GPU device.
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
@@ -65,10 +66,10 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
             if cfg.NUM_GPUS > 1:
                 features = du.all_gather([features])
 
-            all_features.append(features.cpu())
+            for index in indices:
+                all_features[index] = features.cpu().tolist()
 
     all_features = torch.cat(all_features, dim=0)
-    print(all_features.size())
     return all_features
 
 
