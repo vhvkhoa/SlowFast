@@ -85,7 +85,7 @@ class Video(torch.utils.data.Dataset):
                 idx += 1
 
         self.frames = torch.as_tensor(np.stack(self.frames))
-        print(self.frames.size())
+        print(path_to_video, self.frames.size())
         
         if cfg.DETECTION.ENABLE:
             assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
