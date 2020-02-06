@@ -250,11 +250,12 @@ class ResNetRoIHeadFeatOut(ResNetRoIHead):
             out = torch.squeeze(out, 2)
 
             roi_align = getattr(self, "s{}_roi".format(pathway))
-            print(bboxes)
+            print("BBoxes: ", bboxes)
             out = roi_align(out, bboxes)
 
             s_pool = getattr(self, "s{}_spool".format(pathway))
             pool_out.append(s_pool(out))
+            print("Output: ", pool_out)
 
         # B C H W.
         x = torch.cat(pool_out, 1)
