@@ -19,10 +19,11 @@ def feature_extract_bbox(batch):
     bboxes = [
         np.concatenate(
             [np.full((bboxes[i].shape[0], 1), float(i)), bboxes[i]], axis=1
-        ) for i in range(len(bboxes))
+        ) for i in range(len(bboxes)) if len(bboxes[i]) > 0
     ]
 
-    bboxes = torch.tensor(np.concatenate(bboxes, axis=0)).float()
+    if len(bboxes) > 0:
+        bboxes = torch.tensor(np.concatenate(bboxes, axis=0)).float()
     inputs, indices = default_collate(inputs), default_collate(indices)
 
     return indices, inputs, bboxes

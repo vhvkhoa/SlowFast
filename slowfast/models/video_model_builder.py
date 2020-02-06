@@ -566,5 +566,5 @@ class SlowFastModelFeatOut(SlowFastModel):
     def __init__(self, cfg):
         super(SlowFastModelFeatOut, self).__init__(
             cfg,
-            detection_header=head_helper.ResNetBasicHeadFeatOut,
+            detection_header=head_helper.ResNetRoIHeadFeatOut,
             recognition_header=head_helper.ResNetBasicHeadFeatOut)

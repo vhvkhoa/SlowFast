@@ -74,7 +74,10 @@ class Video(torch.utils.data.Dataset):
         fps = float(video_stream.average_rate)
         frames_length = video_stream.frames
         duration = video_stream.duration
-        timebase_per_frame = duration / frames_length
+        try:
+            timebase_per_frame = duration / frames_length
+        except TypeError:
+            timebase_per_frame = 1
 
         target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * timebase_per_frame * fps / target_fps
 
@@ -87,24 +90,24 @@ class Video(torch.utils.data.Dataset):
                 idx += 1
         self.frames = torch.as_tensor(np.stack(self.frames))
         
-        assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
-        bbox_path = os.path.join(
-            cfg.DATA.PATH_TO_BBOX_DIR,
-            os.path.splitext(os.path.basename(path_to_video))[0] + '.json')
+        if cfg.DETECTION.ENABLE:
+            assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
+            bbox_path = os.path.join(
+                cfg.DATA.PATH_TO_BBOX_DIR,
+                os.path.splitext(os.path.basename(path_to_video))[0] + '.json')
 
-        with open(bbox_path, 'r') as f:
-            bboxes_data = json.load(f)
-            self.secs_per_frame = bboxes_data['secs_per_frame']
-            self.bboxes, self.pts = {}, []
-            for frame_data in bboxes_data['video_bboxes']:
-                self.pts.append(frame_data['idx_secs'])
-                frame_bboxes = []
+            with open(bbox_path, 'r') as f:
+                bboxes_data = json.load(f)
+                self.bboxes, self.pts = {}, []
+                for frame_data in bboxes_data['video_bboxes']:
+                    self.pts.append(frame_data['idx_secs'])
+                    frame_bboxes = []
 
-                for bbox in frame_data['frame_bboxes']:
-                    if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
-                        frame_bboxes.append(bbox['box'])
+                    for bbox in frame_data['frame_bboxes']:
+                        if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
+                            frame_bboxes.append(bbox['box'])
 
-                self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
+                    self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
 
     def __getitem__(self, index):
         """
@@ -129,22 +132,25 @@ class Video(torch.utils.data.Dataset):
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
         frames = frames / torch.tensor(self.cfg.DATA.STD)
 
+
         # T H W C -> C T H W.
         frames = frames.permute(3, 0, 1, 2)
 
-        assert (
-            self.pts[index] >= frame_index * self.secs_per_frame and
-            self.pts[index] <= (frame_index + self.num_samples) * self.secs_per_frame
-        ), 'Inconsistent bounding boxes indexing and frames indexing.'
-
-        bboxes = self.bboxes[self.pts[index]]
+        if self.cfg.DETECTION.ENABLE:
+            bboxes = self.bboxes[self.pts[index]]
+        else:
+            bboxes = None
 
         shorter_side_size = self.cfg.DATA.TEST_CROP_SIZE
         frames, bboxes = transform.random_short_side_scale_jitter(frames, shorter_side_size, shorter_side_size, bboxes)
 
         # Two pathways. First: [C T/4 H W]. Second: [C T H W]. if T is not a multiple of 4, drop it.
         frames = utils.pack_pathway_output(self.cfg, frames)
-        return index, frames, bboxes
+
+        if self.cfg.DETECTION.ENABLE:
+            return frames, bboxes, index
+        else:
+            return frames
 
     def __len__(self):
         """

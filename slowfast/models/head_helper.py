@@ -237,7 +237,7 @@ class ResNetBasicHeadFeatOut(ResNetBasicHead):
         return x
 
 
-class RestNetRoIHeadFeatOut(ResNetRoIHead):
+class ResNetRoIHeadFeatOut(ResNetRoIHead):
     def forward(self, inputs, bboxes):
         assert (
             len(inputs) == self.num_pathways
@@ -258,6 +258,5 @@ class RestNetRoIHeadFeatOut(ResNetRoIHead):
         # B C H W.
         x = torch.cat(pool_out, 1)
 
-        print(x.size())
         x = x.view(x.shape[0], -1)
         return x
