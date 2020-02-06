@@ -175,5 +175,6 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
         logger.info("Extracting features for {} iterations. Video count: {}/{}".format(len(video_extraction_loader), video_idx + 1, len(path_to_videos)))
 
-        video_features = feature_extract_fn(video_extraction_loader, model, cfg)
-        np.save(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.npy'), video_features)
+        if len(video_extraction_loader) > 0:
+            video_features = feature_extract_fn(video_extraction_loader, model, cfg)
+            np.save(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.npy'), video_features)

@@ -77,9 +77,13 @@ class Video(torch.utils.data.Dataset):
         self.frames, sampling_idx, frame_idx = [], 0, 0
         while video.isOpened() and frame_idx < frames_length:
             success, frame = video.read()
+            if not success:
+                break
+
             if success and sampling_idx < len(sampling_pts) and frame_idx >= sampling_pts[sampling_idx]:
                 self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 sampling_idx += 1
+
             frame_idx += 1
 
         self.frames = torch.as_tensor(np.stack(self.frames))
