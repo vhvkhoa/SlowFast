@@ -71,7 +71,7 @@ class Video(torch.utils.data.Dataset):
 
         # Decode video. Meta info is used to perform selective decoding.
         video_stream = video_container.streams.video[0]
-        video_capture = cv2.Video_Capture(path_to_video)
+        video_capture = cv2.VideoCapture(path_to_video)
 
         fps = video.get(cv2.CAP_PROP_FPS)
         frames_length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
