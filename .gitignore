@@ -1,0 +1,7 @@
+.vscode/
+build/
+models/
+__pycache__/
+*.egg
+*.egg-info/
+test.csv

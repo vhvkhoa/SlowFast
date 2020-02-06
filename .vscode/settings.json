@@ -2,5 +2,5 @@
     "python.linting.pylintEnabled": true,
     "python.linting.flake8Enabled": false,
     "python.linting.enabled": true,
-    "python.pythonPath": "/Users/vhvkhoa/miniconda3/envs/py36/bin/python"
+    "python.pythonPath": "/home/nii/anaconda3/envs/py37/bin/python"
 }
