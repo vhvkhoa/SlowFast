@@ -108,7 +108,8 @@ class Video(torch.utils.data.Dataset):
                         if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
                             frame_bboxes.append(bbox['box'])
 
-                self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
+                    self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
+
             print(len(self.bboxes))
 
     def __getitem__(self, index):
