@@ -173,7 +173,8 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
     path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
     for video_idx, path_to_video in enumerate(path_to_videos):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
-        logger.info("Extracting features for {} iterations. Video count: {}/{}".format(len(video_extraction_loader), video_idx + 1, len(path_to_videos)))
+        logger.info("Extract features for {}. {} iterations. Video count: {}/{}".format(
+            path_to_video, len(video_extraction_loader), video_idx + 1, len(path_to_videos)))
 
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
