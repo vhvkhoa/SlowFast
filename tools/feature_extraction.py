@@ -8,6 +8,7 @@ import os
 import os.path as osp
 import glob
 import argparse
+import json
 import numpy as np
 import torch
 
@@ -180,4 +181,5 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
 
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
-            np.save(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.npy'), video_features)
+            with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'r') as f:
+            json.dump(video_features, f)
