@@ -242,27 +242,25 @@ class ResNetRoIHeadFeatOut(ResNetRoIHead):
         assert (
             len(inputs) == self.num_pathways
         ), "Input tensor does not contain {} pathway".format(self.num_pathways)
+        print('-'*60)
+        print(inputs[0].size())
+        print(bboxes)
+        print('-'*60)
         pool_out = []
         for pathway in range(self.num_pathways):
-            print("Input: ", inputs[pathway].size())
             t_pool = getattr(self, "s{}_tpool".format(pathway))
             out = t_pool(inputs[pathway])
-            print('Out t_pool: ', out.size())
             assert out.shape[2] == 1
             out = torch.squeeze(out, 2)
 
             roi_align = getattr(self, "s{}_roi".format(pathway))
-            print("BBoxes: ", bboxes.size())
             out = roi_align(out, bboxes)
-            print("Out roi_align: ", out.size())
 
             s_pool = getattr(self, "s{}_spool".format(pathway))
             pool_out.append(s_pool(out))
-            print("Out s_pool: ", pool_out[pathway].size())
 
         # B C H W.
         x = torch.cat(pool_out, 1)
-        print('Output: ', x.size())
 
         x = x.view(x.shape[0], -1)
         return x
