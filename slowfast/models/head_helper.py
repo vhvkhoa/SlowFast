@@ -257,8 +257,8 @@ class ResNetRoIHeadFeatOut(ResNetRoIHead):
             print("Out roi_align: ", out.size())
 
             s_pool = getattr(self, "s{}_spool".format(pathway))
-            print("Out s_pool: ", s_pool.size())
             pool_out.append(s_pool(out))
+            print("Out s_pool: ", pool_out[pathway].size())
 
         # B C H W.
         x = torch.cat(pool_out, 1)
