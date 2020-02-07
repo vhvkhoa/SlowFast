@@ -243,8 +243,8 @@ class ResNetRoIHeadFeatOut(ResNetRoIHead):
             len(inputs) == self.num_pathways
         ), "Input tensor does not contain {} pathway".format(self.num_pathways)
         pool_out = []
-        print("Input: ", inputs.size())
         for pathway in range(self.num_pathways):
+            print("Input: ", inputs[pathway].size())
             t_pool = getattr(self, "s{}_tpool".format(pathway))
             out = t_pool(inputs[pathway])
             print('Out t_pool: ', out.size())
