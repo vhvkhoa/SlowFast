@@ -95,7 +95,7 @@ def perform_feature_extract(test_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = []
+    all_features = {}
 
     with torch.no_grad():
         for inputs, indices in test_loader:
