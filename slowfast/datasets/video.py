@@ -150,7 +150,7 @@ class Video(torch.utils.data.Dataset):
         if self.cfg.DETECTION.ENABLE:
             return frames, bboxes, index
         else:
-            return frames
+            return frames, index
 
     def __len__(self):
         """

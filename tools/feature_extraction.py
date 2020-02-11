@@ -98,7 +98,7 @@ def perform_feature_extract(test_loader, model, cfg):
     all_features = []
 
     with torch.no_grad():
-        for inputs in test_loader:
+        for inputs, indices in test_loader:
             # Transfer the data to the current GPU device.
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
@@ -112,10 +112,9 @@ def perform_feature_extract(test_loader, model, cfg):
             if cfg.NUM_GPUS > 1:
                 features = du.all_gather([features])
 
-            all_features.append(features.cpu())
+            for index in indices:
+                all_features[index] = features.cpu().tolist()
 
-    all_features = torch.cat(all_features, dim=0).numpy()
-    print(all_features.shape)
     return all_features
 
 
