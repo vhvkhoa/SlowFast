@@ -113,7 +113,7 @@ def perform_feature_extract(test_loader, model, cfg):
                 features = du.all_gather([features])
 
             for index in indices:
-                all_features[index] = features.cpu().tolist()
+                all_features[index.item()] = features.cpu().tolist()
 
     return all_features
 
