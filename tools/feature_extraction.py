@@ -23,7 +23,7 @@ from slowfast.utils.meters import AVAMeter, TestMeter
 logger = logging.get_logger(__name__)
 
 
-def perform_bbox_feature_extract(test_loader, model, cfg):
+def perform_bbox_feature_extract(data_loader, model, cfg):
     """
     For classification:
     Perform mutli-view testing that uniformly samples N clips from a video along
@@ -34,7 +34,7 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
     For detection:
     Perform fully-convolutional testing on the full frames without crop.
     Args:
-        test_loader (loader): video testing loader.
+        data_loader (loader): video loader.
         model (model): the pretrained video model to test.
         test_meter (TestMeter): testing meters to log and ensemble the testing
             results.
@@ -47,7 +47,7 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
     all_features = {}
 
     with torch.no_grad():
-        for inputs, bboxes, indices in test_loader:
+        for inputs, bboxes, segment_indices, indices in data_loader:
             if len(bboxes) == 0:
                 for index in indices:
                     all_features[index] = []
@@ -68,13 +68,16 @@ def perform_bbox_feature_extract(test_loader, model, cfg):
             if cfg.NUM_GPUS > 1:
                 features = du.all_gather([features])
 
-            for index in indices:
-                all_features[index] = features.cpu().tolist()
+            for i, index in enumerate(indices):
+                all_features[index] = {
+                    'features': features.cpu().tolist(),
+                    'segment': segment_indices[i]
+                }
 
     return all_features
 
 
-def perform_feature_extract(test_loader, model, cfg):
+def perform_feature_extract(data_loader, model, cfg):
     """
     For classification:
     Perform mutli-view testing that uniformly samples N clips from a video along
@@ -85,10 +88,8 @@ def perform_feature_extract(test_loader, model, cfg):
     For detection:
     Perform fully-convolutional testing on the full frames without crop.
     Args:
-        test_loader (loader): video testing loader.
+        data_loader (loader): video loader.
         model (model): the pretrained video model to test.
-        test_meter (TestMeter): testing meters to log and ensemble the testing
-            results.
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
@@ -98,7 +99,7 @@ def perform_feature_extract(test_loader, model, cfg):
     all_features = {}
 
     with torch.no_grad():
-        for inputs, indices in test_loader:
+        for inputs, segment_indices, indices in data_loader:
             # Transfer the data to the current GPU device.
             if isinstance(inputs, (list,)):
                 for i in range(len(inputs)):
@@ -112,8 +113,11 @@ def perform_feature_extract(test_loader, model, cfg):
             if cfg.NUM_GPUS > 1:
                 features = du.all_gather([features])
 
-            for index in indices:
-                all_features[index.item()] = features.cpu().tolist()
+            for i, index in enumerate(indices):
+                all_features[index.item()] = {
+                    'features': features.cpu().tolist(),
+                    'segment': segment_indices[i].tolist()
+                }
 
     return all_features
 

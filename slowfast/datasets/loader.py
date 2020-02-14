@@ -15,7 +15,7 @@ from .build import build_dataset
 
 
 def feature_extract_bbox(batch):
-    inputs, bboxes, indices = zip(*batch)
+    inputs, bboxes, segment_indices, indices = zip(*batch)
     bboxes = [
         np.concatenate(
             [np.full((bboxes[i].shape[0], 1), float(i)), bboxes[i]], axis=1
@@ -26,7 +26,7 @@ def feature_extract_bbox(batch):
         bboxes = torch.tensor(np.concatenate(bboxes, axis=0)).float()
     inputs = default_collate(inputs)
 
-    return inputs, bboxes, indices
+    return inputs, bboxes, segment_indices, indices
 
 
 def detection_collate(batch):

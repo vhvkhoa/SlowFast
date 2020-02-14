@@ -6,3 +6,4 @@ __pycache__/
 *.egg-info/
 test.csv
 .vscode/settings.json
+.vscode/settings.json
