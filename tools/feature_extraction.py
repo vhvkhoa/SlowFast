@@ -44,7 +44,7 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = {}
+    all_features = [None] * len(data_loader)
 
     with torch.no_grad():
         for inputs, bboxes, segment_indices, indices in data_loader:
@@ -96,7 +96,7 @@ def perform_feature_extract(data_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = {}
+    all_features = [None] * len(data_loader)
 
     with torch.no_grad():
         for inputs, segment_indices, indices in data_loader:
@@ -189,6 +189,7 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
 
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
+            assert all([feature != None, for feature in video_features]), 'Missing some features !'
             video_data['video_features'] = video_features
 
         with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
