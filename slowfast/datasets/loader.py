@@ -25,6 +25,8 @@ def feature_extract_bbox(batch):
     if len(bboxes) > 0:
         bboxes = torch.tensor(np.concatenate(bboxes, axis=0)).float()
     inputs = default_collate(inputs)
+    segment_indices = default_collate(segment_indices)
+    indices = default_collate(indices)
 
     return inputs, bboxes, segment_indices, indices
 

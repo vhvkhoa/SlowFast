@@ -49,8 +49,11 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
     with torch.no_grad():
         for inputs, bboxes, segment_indices, indices in data_loader:
             if len(bboxes) == 0:
-                for index in indices:
-                    all_features[index] = []
+                for i, index in enumerate(indices):
+                    all_features[index] = {
+                        'features': [],
+                        'segment': segment_indices[i].tolist()
+                    }
                 continue
 
             # Transfer the data to the current GPU device.
@@ -71,7 +74,7 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
             for i, index in enumerate(indices):
                 all_features[index] = {
                     'features': features.cpu().tolist(),
-                    'segment': segment_indices[i]
+                    'segment': segment_indices[i].tolist()
                 }
 
     return all_features
