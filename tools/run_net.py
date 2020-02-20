@@ -104,6 +104,7 @@ def load_config(args):
     # Load config from command line, overwrite config from opts.
     if args.opts is not None:
         cfg.merge_from_list(args.opts)
+    print(cfg.RESNET.SPATIAL_STRIDES)
 
     # Inherit parameters from args.
     if hasattr(args, "num_shards") and hasattr(args, "shard_id"):
