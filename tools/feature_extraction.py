@@ -44,13 +44,16 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = {}
+    all_features = [None] * len(data_loader)
 
     with torch.no_grad():
         for inputs, bboxes, segment_indices, indices in data_loader:
             if len(bboxes) == 0:
-                for index in indices:
-                    all_features[index] = []
+                for i, index in enumerate(indices):
+                    all_features[index] = {
+                        'features': [],
+                        'segment': segment_indices[i].tolist()
+                    }
                 continue
 
             # Transfer the data to the current GPU device.
@@ -71,7 +74,7 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
             for i, index in enumerate(indices):
                 all_features[index] = {
                     'features': features.cpu().tolist(),
-                    'segment': segment_indices[i]
+                    'segment': segment_indices[i].tolist()
                 }
 
     return all_features
@@ -96,7 +99,7 @@ def perform_feature_extract(data_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = {}
+    all_features = [None] * len(data_loader)
 
     with torch.no_grad():
         for inputs, segment_indices, indices in data_loader:
@@ -182,7 +185,15 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         logger.info("Extract features for {}. {} iterations. Video count: {}/{}".format(
             os.path.basename(path_to_video), len(video_extraction_loader), video_idx + 1, len(path_to_videos)))
 
+        video_data = {
+            'num_features': len(video_extraction_loader),
+            'video_features': {}
+        }
+
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
-            with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
-                json.dump(video_features, f)
+            assert all([feature != None for feature in video_features]), 'Missing some features !'
+            video_data['video_features'] = video_features
+
+        with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
+            json.dump(video_data, f)

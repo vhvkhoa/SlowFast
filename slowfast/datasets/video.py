@@ -127,7 +127,7 @@ class Video(torch.utils.data.Dataset):
         """
         # Perform color normalization.
         frame_index = index * self.num_samples
-        segment_idx = (frame_index, frame_index + self.num_samples)
+        segment_idx = torch.tensor([frame_index, frame_index + self.num_samples])
         frames = self.frames[segment_idx[0]:segment_idx[1]]
         frames = frames.float()
         frames = frames / 255.0
@@ -151,7 +151,7 @@ class Video(torch.utils.data.Dataset):
         if self.cfg.DETECTION.ENABLE:
             return frames, bboxes, segment_idx, index
         else:
-            return frames, torch.tensor(segment_idx), index
+            return frames, segment_idx, index
 
     def __len__(self):
         """
