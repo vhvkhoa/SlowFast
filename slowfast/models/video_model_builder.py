@@ -159,6 +159,7 @@ class SlowFastModel(nn.Module):
             cfg (CfgNode): model building configs, details are in the
                 comments of the config file.
         """
+        print(cfg.RESNET.SPATIAL_STRIDES)
         assert cfg.MODEL.ARCH in _POOL1.keys()
         pool_size = _POOL1[cfg.MODEL.ARCH]
         assert len({len(pool_size), self.num_pathways}) == 1
