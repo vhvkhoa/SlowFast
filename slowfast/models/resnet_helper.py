@@ -417,6 +417,15 @@ class ResStage(nn.Module):
             + [1] * (num_blocks[i] - num_block_temp_kernel[i])
             for i in range(len(temp_kernel_sizes))
         ]
+        print(dim_in, dim_out)
+        print(temp_kernel_sizes)
+        print(stride)
+        print(num_blocks)
+        print(dim_inner)
+        print(num_groups)
+        print(num_block_temp_kernel)
+        print(nonlocal_inds)
+        print(nonlocal_group)
         assert (
             len(
                 {
