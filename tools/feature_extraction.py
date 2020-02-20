@@ -132,6 +132,7 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
+    print(cfg.RESNET.SPATIAL_STRIDES)
     if not os.path.isdir(path_to_feat_dir):
         os.makedirs(path_to_feat_dir)
 
