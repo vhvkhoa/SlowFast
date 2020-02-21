@@ -88,7 +88,7 @@ class Video(torch.utils.data.Dataset):
         video.release()
         
         if fails_count != 0:
-            print('Failed to read %d/%d frames' % (fails_count, frames_length))
+            print('Failed to read %d/%d frames. Obtained %d frames.' % (fails_count, frames_length, len(self.frames)))
 
         self.frames = torch.as_tensor(np.stack(self.frames))
 
