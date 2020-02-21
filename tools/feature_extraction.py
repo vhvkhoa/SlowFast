@@ -6,10 +6,10 @@
 
 import os
 import os.path as osp
-import time
 import glob
 import argparse
 import json
+from tqdm import tqdm
 import numpy as np
 import torch
 
@@ -45,13 +45,13 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = [None] * len(data_loader)
+    all_features = {}
 
     with torch.no_grad():
         for inputs, bboxes, segment_indices, indices in data_loader:
             if len(bboxes) == 0:
                 for i, index in enumerate(indices):
-                    all_features[index] = {
+                    all_features[index.item()] = {
                         'features': [],
                         'segment': segment_indices[i].tolist()
                     }
@@ -73,10 +73,12 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
                 features = du.all_gather([features])
 
             for i, index in enumerate(indices):
-                all_features[index] = {
+                all_features[index.item()] = {
                     'features': features.cpu().tolist(),
                     'segment': segment_indices[i].tolist()
                 }
+    indices = sorted(all_features.keys(), key=lambda x: float(x))
+    all_features = [all_features[idx] for idx in indices]
 
     return all_features
 
@@ -100,7 +102,7 @@ def perform_feature_extract(data_loader, model, cfg):
     # Enable eval mode.
     model.eval()
 
-    all_features = [None] * len(data_loader)
+    all_features = {}
 
     with torch.no_grad():
         for inputs, segment_indices, indices in data_loader:
@@ -122,6 +124,8 @@ def perform_feature_extract(data_loader, model, cfg):
                     'features': features.cpu().tolist(),
                     'segment': segment_indices[i].tolist()
                 }
+    indices = sorted(all_features.keys(), key=lambda x: float(x))
+    all_features = [all_features[idx] for idx in indices]
 
     return all_features
 
@@ -180,12 +184,9 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
     feature_extract_fn = perform_bbox_feature_extract if cfg.DETECTION.ENABLE else perform_feature_extract
 
     # Create video feature extraction loaders.
-    start_time = time.time()
     path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
-    for video_idx, path_to_video in enumerate(path_to_videos):
+    for video_idx, path_to_video in enumerate(tqdm(path_to_videos)):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
-        logger.info("Extract features for {}. {} iterations. Video count: {}/{}".format(
-            os.path.basename(path_to_video), len(video_extraction_loader), video_idx + 1, len(path_to_videos)))
 
         video_data = {
             'num_features': len(video_extraction_loader),
@@ -199,4 +200,3 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
 
         with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
             json.dump(video_data, f)
-    print(time.time() - start_time)
