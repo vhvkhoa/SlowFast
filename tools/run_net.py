@@ -97,14 +97,12 @@ def load_config(args):
     """
     # Setup cfg.
     cfg = get_cfg()
-    print(cfg.RESNET.SPATIAL_STRIDES)
     # Load config from cfg.
     if args.cfg_file is not None:
         cfg.merge_from_file(args.cfg_file)
     # Load config from command line, overwrite config from opts.
     if args.opts is not None:
         cfg.merge_from_list(args.opts)
-    print(cfg.RESNET.SPATIAL_STRIDES)
 
     # Inherit parameters from args.
     if hasattr(args, "num_shards") and hasattr(args, "shard_id"):
