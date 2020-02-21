@@ -101,14 +101,14 @@ class Video(torch.utils.data.Dataset):
                 bboxes_data = json.load(f)
                 self.bboxes, self.pts = {}, []
                 for frame_data in bboxes_data['video_bboxes']:
-                    self.pts.append(frame_data['idx_secs'])
+                    self.pts.append(frame_data['idx'])
                     frame_bboxes = []
 
                     for bbox in frame_data['frame_bboxes']:
                         if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
                             frame_bboxes.append(bbox['box'])
 
-                    self.bboxes[frame_data['idx_secs']] = np.array(frame_bboxes)
+                    self.bboxes[frame_data['idx']] = np.array(frame_bboxes)
 
     def __getitem__(self, index):
         """
