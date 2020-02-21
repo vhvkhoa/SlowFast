@@ -6,6 +6,7 @@
 
 import os
 import os.path as osp
+import time
 import glob
 import argparse
 import json
@@ -179,6 +180,7 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
     feature_extract_fn = perform_bbox_feature_extract if cfg.DETECTION.ENABLE else perform_feature_extract
 
     # Create video feature extraction loaders.
+    start_time = time.time()
     path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
     for video_idx, path_to_video in enumerate(path_to_videos):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
@@ -197,3 +199,4 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
 
         with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
             json.dump(video_data, f)
+    print(time.time() - start_time)
