@@ -1,0 +1,8 @@
+Command to extract bbox features with sampling_rate=2 and 32 frames per feature:
+python tools/run_net.py --cfg configs/Kinetics/SLOWFAST_8x8_R50.yaml --feature_extraction --video_dir ../datasets/tmp_anet/videos/ --feat_dir ../datasets/tmp_anet/features/ TEST.CHECKPOINT_FILE_PATH models/SLOWFAST_8x8_R50.pkl NUM_GPUS 1 TEST.CHECKPOINT_TYPE caffe2 TEST.BATCH_SIZE 1 DATA.PATH_TO_BBOX_DIR ../datasets/tmp_anet/bboxes/ DETECTION.ENABLE True DETECTION.SPATIAL_SCALE_FACTOR 32
+
+Command to extract bbox features with sampling_rate=1 and 16 frames per feature:
+python tools/run_net.py --cfg configs/Kinetics/SLOWFAST_8x8_R50.yaml --feature_extraction --video_dir ../datasets/tmp_anet/videos/ --feat_dir ../datasets/tmp_anet/agent_features/ TEST.CHECKPOINT_FILE_PATH models/SLOWFAST_8x8_R50.pkl NUM_GPUS 1 TEST.CHECKPOINT_TYPE caffe2 TEST.BATCH_SIZE 1 DATA.PATH_TO_BBOX_DIR ../datasets/tmp_anet/bboxes/ DETECTION.ENABLE True DETECTION.SPATIAL_SCALE_FACTOR 32 DATA.SAMPLING_RATE 1 DATA.NUM_FRAMES 16 RESNET.SPATIAL_STRIDES [[1,1],[2,2],[2,2],[1,1]] RESNET.SPATIAL_DILATIONS [[1,1],[1,1],[1,1],[2,2]]
+
+Command to extract whole features with sampling_rate=1 and 16 frames per feature:
+python tools/run_net.py --cfg configs/Kinetics/SLOWFAST_8x8_R50.yaml --feature_extraction --video_dir ../datasets/tmp_anet/videos/ --feat_dir ../datasets/tmp_anet/env_features/ TEST.CHECKPOINT_FILE_PATH models/SLOWFAST_8x8_R50.pkl NUM_GPUS 1 TEST.CHECKPOINT_TYPE caffe2 TEST.BATCH_SIZE 1 DATA.SAMPLING_RATE 1 DATA.NUM_FRAMES 16
