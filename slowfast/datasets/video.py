@@ -72,7 +72,7 @@ class Video(torch.utils.data.Dataset):
 
         target_sampling_rate = self.cfg.DATA.SAMPLING_RATE * fps / target_fps
 
-        sampling_pts = torch.arange(0, frames_length + 1, target_sampling_rate).tolist()
+        sampling_pts = torch.arange(0, frames_length, target_sampling_rate).tolist()
 
         self.frames, fails_count, frame_idx = [], 0, -1
         for sampling_idx in sampling_pts:
