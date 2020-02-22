@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
@@ -7,10 +6,8 @@
 import os
 import os.path as osp
 import glob
-import argparse
 import json
 from tqdm import tqdm
-import numpy as np
 import torch
 
 import slowfast.utils.checkpoint as cu
@@ -19,7 +16,6 @@ import slowfast.utils.logging as logging
 import slowfast.utils.misc as misc
 from slowfast.datasets import loader
 from slowfast.models import model_builder
-from slowfast.utils.meters import AVAMeter, TestMeter
 
 logger = logging.get_logger(__name__)
 
@@ -63,7 +59,7 @@ def perform_bbox_feature_extract(data_loader, model, cfg):
                     inputs[i] = inputs[i].cuda(non_blocking=True)
             else:
                 inputs = inputs.cuda(non_blocking=True)
-            
+
             bboxes = bboxes.cuda(non_blocking=True)
 
             features = model(inputs, bboxes=bboxes)
@@ -112,7 +108,7 @@ def perform_feature_extract(data_loader, model, cfg):
                     inputs[i] = inputs[i].cuda(non_blocking=True)
             else:
                 inputs = inputs.cuda(non_blocking=True)
-            
+
             features = model(inputs)
 
             # Gather all the predictions across all the devices to perform ensemble.
@@ -195,7 +191,7 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
 
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
-            assert all([feature != None for feature in video_features]), 'Missing some features !'
+            assert all([feature is not None for feature in video_features]), 'Missing some features !'
             video_data['video_features'] = video_features
 
         with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
