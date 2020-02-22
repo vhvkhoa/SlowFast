@@ -126,7 +126,7 @@ def perform_feature_extract(data_loader, model, cfg):
     return all_features
 
 
-def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
+def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir):
     """
     Perform multi-view testing on the pretrained video model.
     Args:
@@ -180,7 +180,19 @@ def feature_extract(cfg, path_to_video_dir, path_to_feat_dir):
     feature_extract_fn = perform_bbox_feature_extract if cfg.DETECTION.ENABLE else perform_feature_extract
 
     # Create video feature extraction loaders.
-    path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
+    if osp.isfile(path_to_video_list):
+        path_to_videos = []
+        with open(path_to_video_list, 'r') as f:
+            video_list = json.load(f)
+
+            for video_name in video_list:
+                path_to_video = osp.join(path_to_video_dir, video_name)
+                if osp.isfile(path_to_video):
+                    path_to_videos.append(path_to_video)
+
+    else:
+        path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
+
     for video_idx, path_to_video in enumerate(tqdm(path_to_videos)):
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
 

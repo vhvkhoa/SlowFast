@@ -81,8 +81,6 @@ class Video(torch.utils.data.Dataset):
 
             if success:
                 self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            else:
-                print(frame_idx, frames_length)
 
             frame_idx = sampling_idx
 

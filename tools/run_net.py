@@ -69,20 +69,25 @@ def parse_args():
         "--video_dir", "-v",
         dest="video_dir",
         default="",
-        help="Directory containing videos input to be extracted.",
+        help="Directory containing videos input to be extracted (Required if feature_extraction is on).",
+        type=str)
+    parser.add_argument(
+        "--video_list", "-l",
+        dest="video_list",
+        help="A list of video names to be extracted in video_dir (Optional).",
         type=str)
     parser.add_argument(
         "--feat_dir", "-f",
         dest="feat_dir",
         default="",
-        help="Directory containing features extracted to be saved.",
+        help="Directory containing features extracted to be saved (Required if feature_extraction is on).",
         type=str)
     parser.add_argument(
         "opts",
         help="See slowfast/config/defaults.py for all options",
         default=None,
-        nargs=argparse.REMAINDER,
-    )
+        nargs=argparse.REMAINDER,)
+
     if len(sys.argv) == 1:
         parser.print_help()
     return parser.parse_args()
@@ -126,7 +131,12 @@ def main():
     cfg = load_config(args)
 
     if args.feature_extraction:
-        feature_extract(cfg=cfg, path_to_video_dir=args.video_dir, path_to_feat_dir=args.feat_dir)
+        feature_extract(
+            cfg=cfg,
+            path_to_video_list=args.video_list,
+            path_to_video_dir=args.video_dir,
+            path_to_feat_dir=args.feat_dir
+        )
         return
 
     # Perform training.
