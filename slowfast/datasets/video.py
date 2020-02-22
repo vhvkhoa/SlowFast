@@ -4,12 +4,10 @@
 import math
 import os
 import json
-import random
 import numpy as np
 import cv2
 import torch
 import torch.utils.data
-import torch.nn.functional as F
 
 from . import transform as transform
 from . import utils as utils
@@ -138,7 +136,7 @@ class Video(torch.utils.data.Dataset):
 
         if self.cfg.DETECTION.ENABLE:
             bboxes_pts = self.pts[index]
-            assert bboxes_pts >= frame_index and bboxes_pts < frame_index + self.num_samples, 'Bbox %d lies outside the chunk scope [%d, %d].'.format(
+            assert bboxes_pts >= frame_index and bboxes_pts < frame_index + self.num_samples, 'Bbox {} lies outside the chunk scope [{}, {}].'.format(
                 bboxes_pts, frame_index, frame_index + self.num_samples
             )
             bboxes = self.bboxes[bboxes_pts]
