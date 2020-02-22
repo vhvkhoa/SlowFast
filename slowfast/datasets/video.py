@@ -140,7 +140,7 @@ class Video(torch.utils.data.Dataset):
         if self.cfg.DETECTION.ENABLE:
             bboxes_pts = self.pts[index]
             begin_pts = frame_index / self.target_fps
-            end_pts = frame_index / self.target_fps
+            end_pts = (frame_index + self.num_samples) / self.target_fps
             assert bboxes_pts >= begin_pts and bboxes_pts < end_pts, 'Bbox {} lies outside the chunk scope [{}, {}].'.format(
                 bboxes_pts, begin_pts, end_pts
             )
