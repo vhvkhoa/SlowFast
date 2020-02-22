@@ -81,10 +81,13 @@ class Video(torch.utils.data.Dataset):
 
             if success:
                 self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            else:
+                print(frame_idx, frames_length)
+
             frame_idx = sampling_idx
 
         video.release()
-        
+
         self.frames = torch.as_tensor(np.stack(self.frames))
 
         if cfg.DETECTION.ENABLE:
@@ -97,14 +100,14 @@ class Video(torch.utils.data.Dataset):
                 bboxes_data = json.load(f)
                 self.bboxes, self.pts = {}, []
                 for frame_data in bboxes_data['video_bboxes']:
-                    self.pts.append(frame_data['idx'])
+                    self.pts.append(frame_data['pts'])
                     frame_bboxes = []
 
                     for bbox in frame_data['frame_bboxes']:
                         if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
                             frame_bboxes.append(bbox['box'])
 
-                    self.bboxes[frame_data['idx']] = np.array(frame_bboxes)
+                    self.bboxes[frame_data['pts']] = np.array(frame_bboxes)
             assert len(self.bboxes) == math.floor(len(self.frames) / self.num_samples), 'Num bboxes and num frames are inconsistent.'
 
     def __getitem__(self, index):
@@ -136,8 +139,10 @@ class Video(torch.utils.data.Dataset):
 
         if self.cfg.DETECTION.ENABLE:
             bboxes_pts = self.pts[index]
-            assert bboxes_pts >= frame_index and bboxes_pts < frame_index + self.num_samples, 'Bbox {} lies outside the chunk scope [{}, {}].'.format(
-                bboxes_pts, frame_index, frame_index + self.num_samples
+            begin_pts = frame_index / self.target_fps
+            end_pts = frame_index / self.target_fps
+            assert bboxes_pts >= begin_pts and bboxes_pts < end_pts, 'Bbox {} lies outside the chunk scope [{}, {}].'.format(
+                bboxes_pts, begin_pts, end_pts
             )
             bboxes = self.bboxes[bboxes_pts]
         else:
