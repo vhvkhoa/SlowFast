@@ -78,14 +78,14 @@ class Video(torch.utils.data.Dataset):
         for sampling_idx in sampling_pts:
             sampling_idx = round(sampling_idx)
 
-            if sampling_idx != frame_idx:
-                video.set(cv2.CAP_PROP_POS_FRAMES, sampling_idx)
+            for _ in range(sampling_idx - frame_idx):
                 success, frame = video.read()
 
             if success:
                 self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             else:
                 fails_count += 1
+            frame_idx = sampling_idx
 
         video.release()
         
