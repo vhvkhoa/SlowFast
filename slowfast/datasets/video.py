@@ -74,7 +74,7 @@ class Video(torch.utils.data.Dataset):
 
         sampling_pts = torch.arange(0, frames_length, target_sampling_rate).tolist()
 
-        self.frames, fails_count, frame_idx = [], 0, -1
+        self.frames, frame_idx = [], -1
         for sampling_idx in sampling_pts:
             sampling_idx = round(sampling_idx)
 
@@ -83,15 +83,10 @@ class Video(torch.utils.data.Dataset):
 
             if success:
                 self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            else:
-                fails_count += 1
             frame_idx = sampling_idx
 
         video.release()
         
-        if fails_count != 0:
-            print('Failed to read %d/%d frames. Obtained %d frames.' % (fails_count, frames_length, len(self.frames)))
-
         self.frames = torch.as_tensor(np.stack(self.frames))
 
         if cfg.DETECTION.ENABLE:
@@ -112,7 +107,6 @@ class Video(torch.utils.data.Dataset):
                             frame_bboxes.append(bbox['box'])
 
                     self.bboxes[frame_data['idx']] = np.array(frame_bboxes)
-            print(len(self.bboxes), len(self.frames) / self.num_samples, len(sampling_pts), frames_length)
             assert len(self.bboxes) == math.floor(len(self.frames) / self.num_samples), 'Num bboxes and num frames are inconsistent.'
 
     def __getitem__(self, index):
@@ -143,7 +137,11 @@ class Video(torch.utils.data.Dataset):
         frames = frames.permute(3, 0, 1, 2)
 
         if self.cfg.DETECTION.ENABLE:
-            bboxes = self.bboxes[self.pts[index]]
+            bboxes_pts = self.pts[index]
+            assert bboxes_pts >= frame_index and bboxes_pts < frame_index + self.num_samples, 'Bbox %d lies outside the chunk scope [%d, %d].'.format(
+                bboxes_pts, frame_index, frame_index + self.num_samples
+            )
+            bboxes = self.bboxes[bboxes_pts]
         else:
             bboxes = None
 
