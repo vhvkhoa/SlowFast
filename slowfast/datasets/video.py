@@ -138,7 +138,7 @@ class Video(torch.utils.data.Dataset):
             )
             for frame_idx in range(*segment_idx.tolist())
         ]
-        frames = frames.float()
+        frames = torch.tensor(frames).float()
         frames = frames / 255.0
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
         frames = frames / torch.tensor(self.cfg.DATA.STD)
