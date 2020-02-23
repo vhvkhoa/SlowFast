@@ -65,8 +65,8 @@ class Video(torch.utils.data.Dataset):
             path_to_video
         )
 
-        if os.path.exists('/tmp/video_frames/'):
-            rmtree('/tmp/video_frames/')
+        if os.path.exists('/tmp/video_frames'):
+            rmtree('/tmp/video_frames')
         os.makedirs('/tmp/video_frames')
 
         video = cv2.VideoCapture(path_to_video)
