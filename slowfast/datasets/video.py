@@ -4,6 +4,8 @@
 import math
 import os
 import json
+from shutil import rmtree
+
 import numpy as np
 import cv2
 import torch
@@ -63,6 +65,9 @@ class Video(torch.utils.data.Dataset):
             path_to_video
         )
 
+        if os.path.exists('/tmp/video_frames/'):
+            rmtree('/tmp/video_frames/')
+
         video = cv2.VideoCapture(path_to_video)
 
         fps = video.get(cv2.CAP_PROP_FPS)
@@ -72,21 +77,20 @@ class Video(torch.utils.data.Dataset):
 
         sampling_pts = torch.arange(0, frames_length, target_sampling_rate).tolist()
 
-        self.frames, frame_idx = [], -1
+        frame_idx, new_frame_idx = -1, 0
         for sampling_idx in sampling_pts:
             sampling_idx = round(sampling_idx)
-
             for _ in range(sampling_idx - frame_idx):
                 success, frame = video.read()
 
             if success:
-                self.frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-
+                cv2.imwrite('/tmp/video_frames/%d.jpg' % new_frame_idx, frame)
+                new_frame_idx += 1
             frame_idx = sampling_idx
 
         video.release()
 
-        self.frames = torch.as_tensor(np.stack(self.frames))
+        self.num_frames = new_frame_idx
 
         if cfg.DETECTION.ENABLE:
             assert os.path.isdir(cfg.DATA.PATH_TO_BBOX_DIR), 'Invalid DATA.PATH_TO_BBOX_DIR.'
@@ -125,7 +129,14 @@ class Video(torch.utils.data.Dataset):
         # Perform color normalization.
         frame_index = index * self.num_samples
         segment_idx = torch.tensor([frame_index, frame_index + self.num_samples])
-        frames = self.frames[segment_idx[0]:segment_idx[1]]
+
+        frames = [
+            cv2.cvtColor(
+                cv2.imread('/tmp/video_frames/%d.jpg' % frame_idx),
+                cv2.COLOR_BGR2RGB
+            )
+            for frame_idx in range(*segment_idx.tolist())
+        ]
         frames = frames.float()
         frames = frames / 255.0
         frames = frames - torch.tensor(self.cfg.DATA.MEAN)
@@ -161,4 +172,4 @@ class Video(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return math.floor(len(self.frames) / self.num_samples)
+        return math.floor(self.num_frames / self.num_samples)
