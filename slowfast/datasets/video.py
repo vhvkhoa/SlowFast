@@ -106,7 +106,6 @@ class Video(torch.utils.data.Dataset):
                             frame_bboxes.append(bbox['box'])
 
                     self.bboxes[frame_data['pts']] = np.array(frame_bboxes)
-            assert len(self.bboxes) == math.floor(len(self.frames) / self.num_samples), 'Num bboxes and num frames are inconsistent.'
 
     def __getitem__(self, index):
         """
