@@ -65,9 +65,9 @@ class Video(torch.utils.data.Dataset):
             path_to_video
         )
 
-        if os.path.exists('/tmp/video_frames'):
-            rmtree('/tmp/video_frames')
-        os.makedirs('/tmp/video_frames')
+        if os.path.exists(cfg.DATA.PATH_TO_TMP_DIR):
+            rmtree(cfg.DATA.PATH_TO_TMP_DIR)
+        os.makedirs(cfg.DATA.PATH_TO_TMP_DIR)
 
         video = cv2.VideoCapture(path_to_video)
 
@@ -85,7 +85,7 @@ class Video(torch.utils.data.Dataset):
                 success, frame = video.read()
 
             if success:
-                cv2.imwrite('/tmp/video_frames/%d.jpg' % new_frame_idx, frame)
+                cv2.imwrite(os.path.join(cfg.DATA.PATH_TO_TMP_DIR, '%d.jpg' % new_frame_idx), frame)
                 new_frame_idx += 1
             frame_idx = sampling_idx
 
@@ -133,7 +133,10 @@ class Video(torch.utils.data.Dataset):
 
         frames = [
             cv2.cvtColor(
-                cv2.imread('/tmp/video_frames/%d.jpg' % frame_idx),
+                cv2.imread(os.path.join(
+                    self.cfg.DATA.PATH_TO_TMP_DIR,
+                    '%d.jpg' % frame_idx)
+                ),
                 cv2.COLOR_BGR2RGB
             )
             for frame_idx in range(*segment_idx.tolist())

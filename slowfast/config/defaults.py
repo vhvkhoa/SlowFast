@@ -209,6 +209,7 @@ _C.SLOWFAST.FUSION_KERNEL_SZ = 5
 # -----------------------------------------------------------------------------
 _C.DATA = CfgNode()
 
+_C.DATA.PATH_TO_TMP_DIR = '/tmp/video_frames'
 # The path to the data directory.
 _C.DATA.PATH_TO_BBOX_DIR = ""
 
