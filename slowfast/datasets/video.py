@@ -111,7 +111,6 @@ class Video(torch.utils.data.Dataset):
                             frame_bboxes.append(bbox['box'])
 
                     self.bboxes[frame_data['pts']] = np.array(frame_bboxes)
-            print(len(self.pts), self.num_frames / self.num_samples)
 
     def __getitem__(self, index):
         """
