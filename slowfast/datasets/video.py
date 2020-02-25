@@ -111,6 +111,7 @@ class Video(torch.utils.data.Dataset):
                             frame_bboxes.append(bbox['box'])
 
                     self.bboxes[frame_data['pts']] = np.array(frame_bboxes)
+            print(self.pts)
 
     def __getitem__(self, index):
         """
