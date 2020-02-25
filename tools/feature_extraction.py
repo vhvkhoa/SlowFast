@@ -195,7 +195,6 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
 
     for video_idx, path_to_video in enumerate(tqdm(path_to_videos)):
         path_to_feature = osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json')
-        print(path_to_feature, osp.isfile(path_to_feature))
         if osp.isfile(path_to_feature):
             continue
 
