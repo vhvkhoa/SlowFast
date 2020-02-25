@@ -194,6 +194,10 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
         path_to_videos = glob.glob(osp.join(path_to_video_dir, '*'))
 
     for video_idx, path_to_video in enumerate(tqdm(path_to_videos)):
+        path_to_feature = osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json')
+        if osp.isfile(path_to_feature):
+            continue
+
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
 
         video_data = {
@@ -206,5 +210,5 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
             assert all([feature is not None for feature in video_features]), 'Missing some features !'
             video_data['video_features'] = video_features
 
-        with open(osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json'), 'w') as f:
+        with open(path_to_feature, 'w') as f:
             json.dump(video_data, f)
