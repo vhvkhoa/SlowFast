@@ -74,6 +74,7 @@ def parse_args():
     parser.add_argument(
         "--video_list", "-l",
         dest="video_list",
+        default="",
         help="A list of video names to be extracted in video_dir (Optional).",
         type=str)
     parser.add_argument(
