@@ -204,6 +204,8 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
             'num_features': len(video_extraction_loader),
             'video_features': {}
         }
+        if video_data['num_features'] != 100:
+            print('Warning! Video %s has %d features.' % (path_to_video, video_data['num_features']))
 
         if len(video_extraction_loader) > 0:
             video_features = feature_extract_fn(video_extraction_loader, model, cfg)
