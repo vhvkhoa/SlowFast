@@ -5,14 +5,17 @@
 
 import torch
 
-from slowfast.models.video_model_builder import ResNetModel, SlowFastModel, SlowFastModelFeatOut
+from slowfast.models.video_model_builder import ResNetModel, SlowFastModel, SlowFastModelFeatOut, ResNetModelFeatOut
 
 # Supported model types
 _MODEL_TYPES = {
     "slowfast_feature": SlowFastModelFeatOut,
     "slowfast": SlowFastModel,
+    "slowonly_feature": ResNetModelFeatOut,
     "slowonly": ResNetModel,
+    "c2d_feature": ResNetModelFeatOut,
     "c2d": ResNetModel,
+    "i3d_feature": ResNetModelFeatOut,
     "i3d": ResNetModel,
 }
 
@@ -32,8 +35,8 @@ def build_model(cfg, feature_extraction=False):
     ), "Cannot use more GPU devices than available"
 
     # Construct the model
-    if cfg.MODEL.ARCH == 'slowfast' and feature_extraction:
-        model = _MODEL_TYPES['slowfast_feature'](cfg)
+    if feature_extraction:
+        model = _MODEL_TYPES[cfg.MODEL.ARCH + '_feature'](cfg)
     else:
         model = _MODEL_TYPES[cfg.MODEL.ARCH](cfg)
     # Determine the GPU used by the current process

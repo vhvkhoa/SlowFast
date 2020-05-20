@@ -391,7 +391,7 @@ class ResNetModel(nn.Module):
     https://arxiv.org/pdf/1711.07971.pdf
     """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, detection_header=head_helper.ResNetRoIHead, recognition_header=head_helper.ResNetBasicHead):
         """
         The `__init__` method of any subclass should also contain these
             arguments.
@@ -403,6 +403,8 @@ class ResNetModel(nn.Module):
         super(ResNetModel, self).__init__()
         self.enable_detection = cfg.DETECTION.ENABLE
         self.num_pathways = 1
+        self.detection_header = detection_header
+        self.recognition_header = recognition_header
         self._construct_network(cfg)
         init_helper.init_weights(
             self, cfg.MODEL.FC_INIT_STD, cfg.RESNET.ZERO_INIT_FINAL_BN
@@ -522,7 +524,7 @@ class ResNetModel(nn.Module):
         )
 
         if self.enable_detection:
-            self.head = head_helper.ResNetRoIHead(
+            self.head = self.detection_header(
                 dim_in=[width_per_group * 32],
                 num_classes=cfg.MODEL.NUM_CLASSES,
                 pool_size=[[cfg.DATA.NUM_FRAMES // pool_size[0][0], 1, 1]],
@@ -533,7 +535,7 @@ class ResNetModel(nn.Module):
                 aligned=cfg.DETECTION.ALIGNED,
             )
         else:
-            self.head = head_helper.ResNetBasicHead(
+            self.head = self.recognition_header(
                 dim_in=[width_per_group * 32],
                 num_classes=cfg.MODEL.NUM_CLASSES,
                 pool_size=[
@@ -563,6 +565,14 @@ class ResNetModel(nn.Module):
 
 
 class SlowFastModelFeatOut(SlowFastModel):
+    def __init__(self, cfg):
+        super(SlowFastModelFeatOut, self).__init__(
+            cfg,
+            detection_header=head_helper.ResNetRoIHeadFeatOut,
+            recognition_header=head_helper.ResNetBasicHeadFeatOut)
+
+
+class ResNetModelFeatOut(SlowFastModel):
     def __init__(self, cfg):
         super(SlowFastModelFeatOut, self).__init__(
             cfg,
