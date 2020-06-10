@@ -144,7 +144,7 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
     logger.info(cfg)
 
     # Build the video model and print model statistics.
-    model = model_builder.build_model(cfg, feature_extraction=True)
+    model = model_builder.build_model(cfg, feature_extraction=False)
     if du.is_master_proc():
         misc.log_model_info(model)
 
