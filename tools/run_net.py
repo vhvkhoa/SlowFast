@@ -66,6 +66,12 @@ def parse_args():
         help="if turned on, only perform feature extraction."
     )
     parser.add_argument(
+        "--num_features",
+        type=int,
+        default=128,
+        help="if turned on, only perform feature extraction."
+    )
+    parser.add_argument(
         "--video_dir", "-v",
         dest="video_dir",
         default="",
@@ -136,7 +142,8 @@ def main():
             cfg=cfg,
             path_to_video_list=args.video_list,
             path_to_video_dir=args.video_dir,
-            path_to_feat_dir=args.feat_dir
+            path_to_feat_dir=args.feat_dir,
+            num_features=args.num_features
         )
         return
 

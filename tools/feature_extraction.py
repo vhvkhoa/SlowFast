@@ -126,7 +126,7 @@ def perform_feature_extract(data_loader, model, cfg):
     return all_features
 
 
-def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir):
+def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir, num_features):
     """
     Perform multi-view testing on the pretrained video model.
     Args:
@@ -195,7 +195,7 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
 
     for video_idx, path_to_video in enumerate(tqdm(path_to_videos)):
         path_to_feature = osp.join(path_to_feat_dir, osp.splitext(osp.basename(path_to_video))[0] + '.json')
-        if osp.isfile(path_to_feature) and json.load(open(path_to_feature))['num_features'] == 100:
+        if osp.isfile(path_to_feature) and json.load(open(path_to_feature))['num_features'] == num_features:
             continue
 
         video_extraction_loader = loader.construct_loader(cfg, path_to_video)
@@ -204,7 +204,7 @@ def feature_extract(cfg, path_to_video_list, path_to_video_dir, path_to_feat_dir
             'num_features': len(video_extraction_loader),
             'video_features': {}
         }
-        if video_data['num_features'] != 100:
+        if video_data['num_features'] != num_features:
             print('Warning! Video %s has %d features.' % (path_to_video, video_data['num_features']))
 
         if len(video_extraction_loader) > 0:
