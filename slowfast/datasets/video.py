@@ -70,6 +70,8 @@ class Video(torch.utils.data.Dataset):
         os.makedirs(cfg.DATA.PATH_TO_TMP_DIR)
 
         video = cv2.VideoCapture(path_to_video)
+        video_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        video_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
         fps = video.get(cv2.CAP_PROP_FPS)
         frames_length = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -108,7 +110,20 @@ class Video(torch.utils.data.Dataset):
 
                     for bbox in frame_data['frame_bboxes']:
                         if bbox['class_id'] in CAPTURED_CLASS_IDS and bbox['score'] > THRESHOLD:
-                            frame_bboxes.append(bbox['box'])
+                            box = bbox['box'].copy()
+                            width, height = box[2] - box[0], box[3] - box[1]
+                            assert width > 0 and height > 0, 'Width %d and height %d are not positive' % (width, height)
+                            box[0] = max(0, box[0] - width / 5.)
+                            box[1] = max(0, box[1] - height / 10.)
+                            box[2] = min(video_width, box[2] + width / 5.)
+                            box[3] = min(video_height, box[3] + height / 10.)
+
+                            frame_bboxes.append(box)
+                    frame_bboxes = sorted(
+                        frame_bboxes,
+                        key=lambda x: (x[2] - x[0]) * (x[3] - x[1]),
+                        reverse=True
+                    )[:5]
 
                     self.bboxes[frame_data['pts']] = np.array(frame_bboxes)
 
